@@ -6,6 +6,7 @@ import Tippy from '@tippyjs/react'; // ✅ dari React
 import { roundArrow } from 'tippy.js'; // ✅ dari core Tippy.js
 import 'tippy.js/dist/tippy.css';         // Tooltip default style
 import 'tippy.js/dist/svg-arrow.css';
+import { ChevronDown } from 'lucide-react'
 
 function Sidelink({ icon, title, href = '/', children, cls = '' }) {
     const [isOpen, setIsOpen] = useState(false);
@@ -43,10 +44,7 @@ function Sidelink({ icon, title, href = '/', children, cls = '' }) {
             <motion.div className={`${baseClass}__title`} layout>
                 {title}
                 {hasChildren && (
-                    <i
-                        data-lucide="chevron-down"
-                        className={`${baseClass}__sub-icon ${isOpen ? 'transform rotate-180' : ''}`}
-                    ></i>
+                    <ChevronDown className={`${baseClass}__sub-icon ${isOpen ? 'transform rotate-179' : ''}`} />
                 )}
             </motion.div>
         </div>
@@ -54,34 +52,34 @@ function Sidelink({ icon, title, href = '/', children, cls = '' }) {
 
     return (
         <li>
-            {/* Link / Button tergantung apakah punya children */}
-            {hasChildren ? (
-                isMobile ? (
-                    <button onClick={handleClick} className="w-full text-left">
-                        {Content}
-                    </button>
-                ) : (
-                    <Tippy
-                        content={title}
-                        arrow={roundArrow}
-                        placement="right"
-                        animation="shift-away"
-                        disabled={!isCollapsed}
-                        delay={[0, 100]}
-                    >
+            <Tippy
+                content={title}
+                arrow={roundArrow}
+                placement="right"
+                animation="shift-away"
+                disabled={!isCollapsed}
+                delay={[0, 100]}
+            >
+                {/* Link / Button tergantung apakah punya children */}
+                {hasChildren ? (
+                    isMobile ? (
                         <button onClick={handleClick} className="w-full text-left">
                             {Content}
                         </button>
-                    </Tippy>
-                )
-            ) : (
-                <Link href={href} className={fullClass}>
-                    <div className={`${baseClass}__icon`}>{icon}</div>
-                    <motion.div className={`${baseClass}__title`} layout>
-                        {title}
-                    </motion.div>
-                </Link>
-            )}
+                    ) : (
+                        <button onClick={handleClick} className="w-full text-left">
+                            {Content}
+                        </button>
+                    )
+                ) : (
+                    <Link href={href} className={fullClass}>
+                        <div className={`${baseClass}__icon`}>{icon}</div>
+                        <motion.div className={`${baseClass}__title`} layout>
+                            {title}
+                        </motion.div>
+                    </Link>
+                )}
+            </Tippy>
 
             {/* Submenu */}
             {hasChildren && (
