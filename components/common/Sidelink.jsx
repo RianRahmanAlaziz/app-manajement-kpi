@@ -1,4 +1,5 @@
 'use client';
+import React from 'react'
 import { useEffect, useState } from 'react'
 import Link from 'next/link';
 import { motion, AnimatePresence } from 'framer-motion';
@@ -6,11 +7,38 @@ import Tippy from '@tippyjs/react'; // ✅ dari React
 import { roundArrow } from 'tippy.js'; // ✅ dari core Tippy.js
 import 'tippy.js/dist/tippy.css';         // Tooltip default style
 import 'tippy.js/dist/svg-arrow.css';
-import { ChevronDown } from 'lucide-react'
+import { ChevronDown } from 'lucide-react';
+import { usePathname } from 'next/navigation';
 
 function Sidelink({ icon, title, href = '/', children, cls = '' }) {
+    const pathname = usePathname(); // ⬅️ Ambil route saat ini
     const [isOpen, setIsOpen] = useState(false);
     const [isMobile, setIsMobile] = useState(false)
+    const hasChildren = !!children;
+
+    const isChildActive = hasChildren &&
+        React.Children.toArray(children).some(child => {
+            return (
+                React.isValidElement(child) &&
+                child.props.href &&
+                pathname.startsWith(child.props.href)
+            );
+        });
+
+    const isDirectActive = href && pathname === href;
+
+    const isNestedActive = href &&
+        pathname.startsWith(href + '/') &&
+        !isChildActive; // Hanya aktif kalau tidak ada child yang lebih cocok
+
+    const isActive = isDirectActive || isNestedActive || isChildActive;
+
+    useEffect(() => {
+        if (isActive && hasChildren) {
+            setIsOpen(true); // auto buka menu
+        }
+    }, [isActive, hasChildren]);
+
 
     useEffect(() => {
         const checkMobile = () => {
@@ -23,9 +51,9 @@ function Sidelink({ icon, title, href = '/', children, cls = '' }) {
     }, []);
 
     const baseClass = isMobile ? 'menu' : 'side-menu'
-    const fullClass = `${baseClass} ${cls}`.trim()
 
-    const hasChildren = !!children;
+    const fullClass = `${baseClass} ${cls} ${isActive ? 'side-menu--active' : ''}`.trim();
+
 
     const handleClick = (e) => {
         if (hasChildren) {

@@ -1,45 +1,52 @@
 'use client';
-import DashboardPage from '../page'
+import DashboardPage from '../../page'
 import Image from 'next/image'
 import Tippy from '@tippyjs/react'; // ✅ dari React
-import { CheckSquare, Trash2, ChevronLeft, ChevronsLeft, ChevronRight, ChevronsRight } from 'lucide-react'
+import { CheckSquare, Trash2, ChevronLeft, ChevronsLeft, ChevronRight, ChevronsRight, UserPlus } from 'lucide-react'
 import { useState } from 'react'
-import Modal from '../../../components/common/Modal';
+import Modal from '../../../../components/common/Modal';
+import { motion } from "framer-motion";
+import Adduser from '../../../../components/pages/users/Adduser';
+import Modaldelete from '../../../../components/common/Modaldelete';
 
 function PageUsers() {
     const [isOpen, setIsOpen] = useState(false);
+    const [isOpenDelete, setIsOpenDelete] = useState(false);
+
     const [modalData, setModalData] = useState({
         title: '',
         content: null,
+    });
+    const [modalDataDelete, setModalDataDelete] = useState({
+        title: '',
     });
     const openModal = (title, content) => {
         setModalData({ title, content });
         setIsOpen(true);
     };
+    const openModalDelete = (title) => {
+        setModalDataDelete({ title });
+        setIsOpenDelete(true);
+    };
 
+    // 👉 Handler Submit Add Product
+    const handleAddProduct = (data) => {
+        setProducts([...products, data]);
+        setIsOpen(false); // close modal
+    };
     return (
         <DashboardPage>
             <h2 className="intro-y text-lg font-medium pt-24">
-                Product List
+                Users List
             </h2>
             <div className="grid grid-cols-12 gap-6 mt-5">
                 <div className="intro-y col-span-12 flex flex-wrap sm:flex-nowrap items-center mt-2">
                     <button
-                        onClick={() => openModal('Add Product',
-                            <div className="col-span-12 sm:col-span-12">
-                                <label for="title"
-                                    className="block text-sm font-medium text-gray-700 mt-2">Title
-                                </label>
-                                <input id="title" name="title" type="text" className="form-control"
-                                    value="asd" placeholder="Title" />
-
-                                <div className="text-danger mt-2">
-                                    abcd
-                                </div>
-
-                            </div>
-                        )}
-                        className="btn btn-dark dark:btn-outline-dark shadow-md mr-2">Add New Product
+                        onClick={() =>
+                            openModal("Add Product", <Adduser onSubmit={handleAddProduct} />)
+                        }
+                        className="btn btn-secondary shadow-md mr-2">
+                        <UserPlus className='pr-1.5' /> New Users
                     </button>
 
                     <div className="hidden md:block mx-auto text-slate-500"></div>
@@ -56,15 +63,15 @@ function PageUsers() {
                         <thead>
                             <tr>
                                 <th className="whitespace-nowrap">IMAGES</th>
-                                <th className="whitespace-nowrap">PRODUCT NAME</th>
-                                <th className="text-center whitespace-nowrap">STOCK</th>
-                                <th className="text-center whitespace-nowrap">PRICE</th>
+                                <th className="whitespace-nowrap"> NAME</th>
                                 <th className="text-center whitespace-nowrap">STATUS</th>
                                 <th className="text-center whitespace-nowrap">ACTIONS</th>
                             </tr>
                         </thead>
                         <tbody>
-                            <tr className="intro-x">
+                            <motion.tr
+                                whileHover={{ scale: 1.03 }}
+                            >
                                 <td className="w-40">
                                     <div className="flex">
                                         <Tippy
@@ -87,8 +94,6 @@ function PageUsers() {
                                     <a href="" className="font-medium whitespace-nowrap">Samsung Q90 QLED TV</a>
                                     <div className="text-slate-500 text-xs whitespace-nowrap mt-0.5">Electronic</div>
                                 </td>
-                                <td className="text-center">54</td>
-                                <td className="text-center">$97</td>
                                 <td className="w-40 ">
                                     <div className="flex items-center justify-center text-danger">
                                         <CheckSquare className="w-4 h-4 mr-2" /> Inactive
@@ -97,21 +102,23 @@ function PageUsers() {
                                 <td className="table-report__action w-56">
                                     <div className="flex justify-center items-center">
                                         <button
-                                            onClick={() => openModal('Edit Product',
-                                                <p>
-                                                    Lorem ipsum dolor sit amet consectetur adipisicing elit. Nemo nulla quis maxime, ducimus nostrum ea qui numquam expedita sunt labore reiciendis dicta eveniet saepe hic aliquam, alias soluta aspernatur sit dolorum voluptas aliquid optio illo! Voluptas dolor ut qui alias mollitia nihil architecto fugiat quisquam hic veritatis cumque soluta, illo sed temporibus recusandae earum nobis distinctio facere minima velit modi. Omnis ea laborum incidunt, animi porro minus nam eum excepturi aliquam, enim dicta sunt atque voluptatem quisquam nulla. Dolorem, a sed aliquam similique quasi commodi nesciunt facilis. Dignissimos, itaque temporibus consectetur laudantium et provident porro ea sequi minima maxime expedita!
-                                                </p>
-                                            )}
+                                            onClick={() =>
+                                                openModal("Edit Product", <Adduser onSubmit={handleAddProduct} />)
+                                            }
                                             className="flex items-center mr-3" >
                                             <CheckSquare className="w-4 h-4 mr-1" />
                                             Edit
                                         </button>
-                                        <button className="flex items-center text-danger"
-                                            data-tw-toggle="modal" data-tw-target="#delete-confirmation-modal">
+                                        <button
+                                            onClick={() =>
+                                                openModalDelete("asd")
+                                            }
+                                            className="flex items-center text-danger"
+                                        >
                                             <Trash2 className="w-4 h-4 mr-1" /> Delete </button>
                                     </div>
                                 </td>
-                            </tr>
+                            </motion.tr>
 
                         </tbody>
                     </table>
@@ -152,6 +159,13 @@ function PageUsers() {
             >
                 {modalData.content}
             </Modal>
+            <Modaldelete
+                isOpenDelete={isOpenDelete}
+                onClose={() => setIsOpenDelete(false)}
+                title={modalDataDelete.title}
+            >
+                {modalDataDelete.content}
+            </Modaldelete>
         </DashboardPage>
     )
 }

@@ -1,19 +1,19 @@
-import React from 'react'
+
 import { motion, AnimatePresence } from "framer-motion";
-import { createPortal } from "react-dom";
+import { createPortal } from 'react-dom';
+import { XCircle } from 'lucide-react';
 import { useEffect, useState } from "react";
 
-function Modal({ isOpen, onClose, title, children, onSave }) {
+function Modaldelete({ isOpenDelete, onClose, onDelete, title }) {
     const [mounted, setMounted] = useState(false);
 
     useEffect(() => {
         setMounted(true);
     }, []);
 
-    if (!mounted || !isOpen) return null;
+    if (!mounted || !isOpenDelete) return null;
 
     return createPortal(
-
         <AnimatePresence>
             <motion.div
                 initial={{ opacity: 0 }}
@@ -25,23 +25,27 @@ function Modal({ isOpen, onClose, title, children, onSave }) {
                     animate={{ opacity: 1, scale: 1 }}
                     exit={{ opacity: 0, scale: 0 }}
                     transition={{ duration: 0.3, ease: "easeInOut" }}
-                    className="bg-white dark:bg-darkmode-600 rounded-lg shadow-lg p-6 w-4xl">
-                    <h3 className="text-lg font-bold">{title}</h3>
-                    <div className="my-5 grid grid-cols-12 gap-4 gap-y-3">
-                        {children}
+                    className="bg-white dark:bg-darkmode-600 rounded-lg shadow-lg p-6 w-full max-w-md ">
+                    <div className="text-center">
+                        <XCircle className="w-16 h-16 text-red-500 mx-auto mt-3" />
+                        <div className="text-2xl font-semibold mt-5">Are you sure?</div>
+                        <div className="text-slate-500 dark:text-slate-400 mt-2 text-sm">
+                            Do you really want to delete these records? <br />
+                            This process cannot be undone.
+                        </div>
                     </div>
-                    <div className="flex justify-end">
+                    <div className="flex justify-end mt-6">
                         <button
-                            className="btn-dark w-20 mr-3 bg-gray-300  rounded-lg hover:bg-gray-400 transition"
+                            className="btn btn-outline-secondary mr-3 w-24 bg-gray-100 hover:bg-gray-200 dark:bg-slate-700 dark:hover:bg-slate-600 rounded"
                             onClick={onClose}
                         >
                             Close
                         </button>
                         <button
-                            onClick={onSave}
-                            className="btn btn-secondary w-20 bg-gray-300 rounded-lg hover:bg-gray-400 transition"
+                            onClick={onDelete}
+                            className="btn btn-danger w-24 bg-red-500 hover:bg-red-600 text-white rounded"
                         >
-                            Save
+                            Delete
                         </button>
                     </div>
                 </motion.div>
@@ -49,7 +53,7 @@ function Modal({ isOpen, onClose, title, children, onSave }) {
         </AnimatePresence>,
 
         document.getElementById("modal-root")
-    );
+    )
 }
 
-export default Modal
+export default Modaldelete
