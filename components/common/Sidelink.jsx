@@ -14,24 +14,23 @@ function Sidelink({ icon, title, href = '/', children, cls = '' }) {
     const pathname = usePathname(); // ⬅️ Ambil route saat ini
     const [isOpen, setIsOpen] = useState(false);
     const [isMobile, setIsMobile] = useState(false)
+
     const hasChildren = !!children;
 
+
     const isChildActive = hasChildren &&
-        React.Children.toArray(children).some(child => {
-            return (
-                React.isValidElement(child) &&
-                child.props.href &&
-                pathname.startsWith(child.props.href)
-            );
-        });
+        React.Children.toArray(children).some(child =>
+            React.isValidElement(child) &&
+            typeof child.props.href === 'string' &&
+            pathname.startsWith(child.props.href)
+        );
 
     const isDirectActive = href && pathname === href;
 
-    const isNestedActive = href &&
-        pathname.startsWith(href + '/') &&
-        !isChildActive; // Hanya aktif kalau tidak ada child yang lebih cocok
+    // ✅ Fix utama: parent aktif jika anak aktif atau exact match,
+    // tapi ❌ TIDAK aktif hanya karena `startsWith` doang (menghindari /dashboard aktif saat /dashboard/users)
+    const isActive = isDirectActive || isChildActive;
 
-    const isActive = isDirectActive || isNestedActive || isChildActive;
 
     useEffect(() => {
         if (isActive && hasChildren) {
@@ -66,18 +65,6 @@ function Sidelink({ icon, title, href = '/', children, cls = '' }) {
         typeof window !== 'undefined' &&
         (window.innerWidth <= 1260 || document.querySelector('.side-nav')?.classList.contains('side-nav--simple'));
 
-    const Content = (
-        <div className={fullClass}>
-            <div className={`${baseClass}__icon`}>{icon}</div>
-            <motion.div className={`${baseClass}__title`} layout>
-                {title}
-                {hasChildren && (
-                    <ChevronDown className={`${baseClass}__sub-icon ${isOpen ? 'transform rotate-179' : ''}`} />
-                )}
-            </motion.div>
-        </div>
-    );
-
     return (
         <li>
             <Tippy
@@ -88,25 +75,22 @@ function Sidelink({ icon, title, href = '/', children, cls = '' }) {
                 disabled={!isCollapsed}
                 delay={[0, 100]}
             >
-                {/* Link / Button tergantung apakah punya children */}
-                {hasChildren ? (
-                    isMobile ? (
-                        <button onClick={handleClick} className="w-full text-left">
-                            {Content}
-                        </button>
-                    ) : (
-                        <button onClick={handleClick} className="w-full text-left">
-                            {Content}
-                        </button>
-                    )
-                ) : (
-                    <Link href={href} className={fullClass}>
-                        <div className={`${baseClass}__icon`}>{icon}</div>
-                        <motion.div className={`${baseClass}__title`} layout>
-                            {title}
-                        </motion.div>
-                    </Link>
-                )}
+                <Link
+                    href={hasChildren ? '#' : href}
+                    onClick={hasChildren ? handleClick : undefined}
+                    className={fullClass}
+                >
+                    <div className={`${baseClass}__icon`}>{icon}</div>
+                    <motion.div className={`${baseClass}__title`} layout>
+                        {title}
+                        {hasChildren && (
+                            <ChevronDown
+                                className={`${baseClass}__sub-icon transition-transform ${isOpen ? 'rotate-180' : ''
+                                    }`}
+                            />
+                        )}
+                    </motion.div>
+                </Link>
             </Tippy>
 
             {/* Submenu */}
