@@ -1,25 +1,38 @@
 import React from 'react'
-import { useState } from 'react'
 
-function Adduser({ onSubmit }) {
-    const [form, setForm] = useState({ email: "", password: "" });
+function Adduser({ formData, setFormData }) {
 
     const handleChange = (e) => {
-        setForm({ ...form, [e.target.name]: e.target.value });
+        const { name, value } = e.target;
+
+        setFormData(prev => ({
+            ...prev,
+            [name]: value,
+        }));
     };
-    const handleSubmit = (e) => {
-        e.preventDefault();
-        onSubmit(form);
-    };
+
     return (
         <>
+            <div className="col-span-6 sm:col-span-12">
+                <label htmlFor="name" className="form-label">Name</label>
+                <input
+                    id="name"
+                    type="text"
+                    name="name"
+                    value={formData.name}
+                    onChange={handleChange}
+                    className="form-control"
+                    placeholder="Name"
+                    required
+                />
+            </div>
             <div className="col-span-6 sm:col-span-12">
                 <label htmlFor="email" className="form-label">Email</label>
                 <input
                     id="email"
                     type="email"
                     name="email"
-                    value={form.email}
+                    value={formData.email}
                     onChange={handleChange}
                     className="form-control"
                     placeholder="example@gmail.com"
@@ -30,11 +43,12 @@ function Adduser({ onSubmit }) {
                 <label htmlFor="password" className="form-label">Password</label>
                 <input
                     id="password"
-                    type="text"
+                    type="password"
                     name="password"
-                    value={form.password}
+                    value={formData.password}
                     onChange={handleChange}
                     className="form-control"
+                    placeholder="********"
                     required
                 />
             </div>
@@ -42,4 +56,4 @@ function Adduser({ onSubmit }) {
     )
 }
 
-export default Adduser
+export default Adduser;

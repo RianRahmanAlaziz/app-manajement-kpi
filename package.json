@@ -10,6 +10,7 @@
   },
   "dependencies": {
     "@tippyjs/react": "^4.2.6",
+    "axios": "^1.12.2",
     "lucide-react": "^0.544.0",
     "motion": "^12.23.14",
     "next": "15.5.3",
