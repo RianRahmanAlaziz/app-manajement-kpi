@@ -71,7 +71,7 @@ function Menumobile() {
                         />
                         <Sidelink
                             title="Add User"
-                            href="/users/add"
+                            href="/users/role-management"
                             icon={<svg
                                 id="Layer_1"
                                 fill="currentColor"

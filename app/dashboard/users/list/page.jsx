@@ -9,18 +9,27 @@ import Modal from '../../../../components/common/Modal';
 import { motion } from "framer-motion";
 import Adduser from '../../../../components/pages/users/Adduser';
 import Modaldelete from '../../../../components/common/Modaldelete';
+import { toast, ToastContainer } from 'react-toastify' // ✅ Tambahkan ini
+import 'react-toastify/dist/ReactToastify.css' // ✅ Import CSS
 
 function PageUsers() {
     const [isOpen, setIsOpen] = useState(false);
     const [isOpenDelete, setIsOpenDelete] = useState(false);
     const [users, setUsers] = useState([]);
     const [loading, setLoading] = useState(true);
+    const [searchTerm, setSearchTerm] = useState('');
     const [formData, setFormData] = useState({
         name: "",
         email: "",
         password: "",
     });
 
+    const [pagination, setPagination] = useState({
+        current_page: 1,
+        last_page: 1,
+        per_page: 10,
+        total: 0
+    });
 
     // modalData: hanya metadata (jangan simpan JSX di sini)
     const [modalData, setModalData] = useState({
@@ -36,25 +45,46 @@ function PageUsers() {
     // ✅ ambil token dari localStorage (disimpan saat login)
     const token = typeof window !== "undefined" ? localStorage.getItem("token") : null;
     // ✅ ambil data user dari API Laravel
-    const fetchUsers = async () => {
+    const fetchUsers = async (page = 1, search = '') => {
         try {
-            const res = await axios.get("http://127.0.0.1:8000/api/users", {
+            const res = await axios.get(`http://127.0.0.1:8000/api/users?page=${page}&search=${search}`, {
                 headers: {
                     Authorization: `Bearer ${token}`,
                     Accept: "application/json"
                 }
+
             });
-            setUsers(res.data.data);
+
+            const paginated = res.data.data;
+            setUsers(paginated.data);
+            setPagination({
+                current_page: paginated.current_page,
+                last_page: paginated.last_page,
+                per_page: paginated.per_page,
+                total: paginated.total
+            });
         } catch (error) {
             console.error("Gagal mengambil data user:", error);
+            toast.error("Gagal mengambil data user 😞");
         } finally {
             setLoading(false);
         }
     };
 
     useEffect(() => {
-        fetchUsers();
-    }, []);
+        if (searchTerm.trim() !== '') setLoading(true);
+        const timeout = setTimeout(() => {
+            fetchUsers(searchTerm);
+        }, 500);
+        return () => clearTimeout(timeout);
+    }, [searchTerm]);
+
+    // 🔹 navigasi pagination
+    const handlePageChange = (page) => {
+        if (page < 1 || page > pagination.last_page) return;
+        setLoading(true);
+        fetchUsers(page, searchTerm);
+    };
 
     // 🔹 Tambah atau edit user
     const handleSaveUser = async () => {
@@ -82,11 +112,18 @@ function PageUsers() {
             await fetchUsers();
             setIsOpen(false);
             setFormData({ name: '', email: '', password: '' });
+            // ✅ Toast notifikasi sukses
+            if (mode === 'edit') {
+                toast.info("User berhasil diperbarui");
+            } else {
+                toast.success("User berhasil ditambahkan");
+            }
         } catch (error) {
             console.error(
                 mode === 'edit' ? 'Gagal mengupdate user:' : 'Gagal menambahkan user:',
                 error.response?.data || error.message
             );
+            toast.error(mode === 'edit' ? "Gagal memperbarui user ⚠️" : "Gagal menambahkan user 🚫");
         }
     };
 
@@ -115,8 +152,10 @@ function PageUsers() {
             console.log("Berhasil menghapus user:", res.data);
             await fetchUsers(); // refresh data tabel
             setIsOpenDelete(false); // tutup modal
+            toast.success("User berhasil dihapus 🗑️");
         } catch (error) {
             console.error("Gagal menghapus user:", error.response?.data || error.message);
+            toast.error("Gagal menghapus user ❌");
         }
     };
 
@@ -144,7 +183,13 @@ function PageUsers() {
                     <div className="hidden md:block mx-auto text-slate-500"></div>
                     <div className="w-full sm:w-auto mt-3 sm:mt-0 sm:ml-auto md:ml-0">
                         <div className="w-56 relative text-slate-500">
-                            <input type="text" className="form-control w-56 box pr-10" placeholder="Search..." />
+                            <input
+                                type="text"
+                                className="form-control w-56 box pr-10"
+                                placeholder="Search..."
+                                value={searchTerm}
+                                onChange={(e) => setSearchTerm(e.target.value)}
+                            />
                             <i className="w-4 h-4 absolute my-auto inset-y-0 mr-3 right-0" data-lucide="search"></i>
                         </div>
                     </div>
@@ -166,56 +211,62 @@ function PageUsers() {
                                     <td colSpan="4" className="text-center py-4">Loading...</td>
                                 </tr>
                             ) : users.length > 0 ? (
-                                users.map((user, index) => (
-                                    <motion.tr key={user.id} whileHover={{ scale: 1.03 }}>
-                                        <td className="w-40">
-                                            <div className="flex">
-                                                <Tippy
-                                                    animation="shift-away"
-                                                    content={`Uploaded at ${new Date(user.created_at).toLocaleDateString('id-ID', {
-                                                        day: 'numeric',
-                                                        month: 'long',
-                                                        year: 'numeric',
-                                                    })}`}
-                                                    delay={[0, 100]}
-                                                >
-                                                    <Image
-                                                        alt={user.name}
-                                                        width={40}
-                                                        height={40}
-                                                        className="rounded-full"
-                                                        src="/images/preview-8.jpg"
-                                                    />
-                                                </Tippy>
-                                            </div>
-                                        </td>
-                                        <td>
-                                            <span className="font-medium whitespace-nowrap">{user.name}</span>
-                                            <div className="text-slate-500 text-xs whitespace-nowrap mt-0.5">{user.email}</div>
-                                        </td>
-                                        <td className="w-40">
-                                            <div className="flex items-center justify-center text-success">
-                                                <CheckSquare className="w-4 h-4 mr-2" /> Active
-                                            </div>
-                                        </td>
-                                        <td className="table-report__action w-56">
-                                            <div className="flex justify-center items-center">
-                                                <button
-                                                    onClick={() => openEditUserModal(user)}
-                                                    className="flex items-center mr-3"
-                                                >
-                                                    <CheckSquare className="w-4 h-4 mr-1" /> Edit
-                                                </button>
-                                                <button
-                                                    onClick={() => openModalDelete(user)}
-                                                    className="flex items-center text-danger"
-                                                >
-                                                    <Trash2 className="w-4 h-4 mr-1" /> Delete
-                                                </button>
-                                            </div>
-                                        </td>
-                                    </motion.tr>
-                                ))
+                                [...users]
+                                    .filter((user) =>
+                                        user.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
+                                        user.email.toLowerCase().includes(searchTerm.toLowerCase())
+                                    )
+                                    .sort((a, b) => new Date(a.created_at) - new Date(b.created_at))
+                                    .map((user, index) => (
+                                        <motion.tr key={user.id} whileHover={{ scale: 1.03 }}>
+                                            <td className="w-40">
+                                                <div className="flex">
+                                                    <Tippy
+                                                        animation="shift-away"
+                                                        content={`Uploaded at ${new Date(user.created_at).toLocaleDateString('id-ID', {
+                                                            day: 'numeric',
+                                                            month: 'long',
+                                                            year: 'numeric',
+                                                        })}`}
+                                                        delay={[0, 100]}
+                                                    >
+                                                        <Image
+                                                            alt={user.name}
+                                                            width={40}
+                                                            height={40}
+                                                            className="rounded-full"
+                                                            src="/images/preview-8.jpg"
+                                                        />
+                                                    </Tippy>
+                                                </div>
+                                            </td>
+                                            <td>
+                                                <span className="font-medium whitespace-nowrap">{user.name}</span>
+                                                <div className="text-slate-500 text-xs whitespace-nowrap mt-0.5">{user.email}</div>
+                                            </td>
+                                            <td className="w-40">
+                                                <div className="flex items-center justify-center text-success">
+                                                    <CheckSquare className="w-4 h-4 mr-2" /> Active
+                                                </div>
+                                            </td>
+                                            <td className="table-report__action w-56">
+                                                <div className="flex justify-center items-center">
+                                                    <button
+                                                        onClick={() => openEditUserModal(user)}
+                                                        className="flex items-center mr-3"
+                                                    >
+                                                        <CheckSquare className="w-4 h-4 mr-1" /> Edit
+                                                    </button>
+                                                    <button
+                                                        onClick={() => openModalDelete(user)}
+                                                        className="flex items-center text-danger"
+                                                    >
+                                                        <Trash2 className="w-4 h-4 mr-1" /> Delete
+                                                    </button>
+                                                </div>
+                                            </td>
+                                        </motion.tr>
+                                    ))
                             ) : (
                                 <tr>
                                     <td colSpan="4" className="text-center py-4">Tidak ada data user</td>
@@ -229,25 +280,34 @@ function PageUsers() {
                     <nav className="w-auto">
                         <ul className="pagination">
                             <li className="page-item">
-                                <a className="page-link" href="#">
+                                <button className="page-link" onClick={() => handlePageChange(1)} disabled={pagination.current_page === 1}>
                                     <ChevronsLeft className="w-4 h-4" />
-                                </a>
+                                </button>
+
                             </li>
                             <li className="page-item">
-                                <a className="page-link" href="#">
+                                <button className="page-link" onClick={() => handlePageChange(pagination.current_page - 1)} disabled={pagination.current_page === 1}>
                                     <ChevronLeft className="w-4 h-4" />
-                                </a>
+                                </button>
                             </li>
-                            <li className="page-item"> <a className="page-link" href="#">...</a> </li>
-                            <li className="page-item"> <a className="page-link" href="#">1</a> </li>
-                            <li className="page-item active"> <a className="page-link" href="#">2</a> </li>
-                            <li className="page-item"> <a className="page-link" href="#">3</a> </li>
-                            <li className="page-item"> <a className="page-link" href="#">...</a> </li>
+
+                            {[...Array(pagination.last_page)].map((_, i) => (
+                                <li key={i} className={`page-item ${pagination.current_page === i + 1 ? 'active' : ''}`}>
+                                    <button className="page-link" onClick={() => handlePageChange(i + 1)}>
+                                        {i + 1}
+                                    </button>
+                                </li>
+                            ))}
+
                             <li className="page-item">
-                                <a className="page-link" href="#"> <ChevronRight className="w-4 h-4" /> </a>
+                                <button className="page-link" onClick={() => handlePageChange(pagination.current_page + 1)} disabled={pagination.current_page === pagination.last_page}>
+                                    <ChevronRight className="w-4 h-4" />
+                                </button>
                             </li>
                             <li className="page-item">
-                                <a className="page-link" href="#"> <ChevronsRight className="w-4 h-4" /> </a>
+                                <button className="page-link" onClick={() => handlePageChange(pagination.last_page)} disabled={pagination.current_page === pagination.last_page}>
+                                    <ChevronsRight className="w-4 h-4" />
+                                </button>
                             </li>
                         </ul>
                     </nav>
@@ -272,7 +332,7 @@ function PageUsers() {
             >
                 {modalDataDelete.content}
             </Modaldelete>
-        </DashboardPage>
+        </DashboardPage >
     )
 }
 

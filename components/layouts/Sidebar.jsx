@@ -28,7 +28,7 @@ function Sidebar() {
                     />
                     <Sidelink
                         title="Role Management"
-                        href="/dashboard/users/add"
+                        href="/dashboard/users/role-management"
                         icon={<UserCog />}
                     />
 
