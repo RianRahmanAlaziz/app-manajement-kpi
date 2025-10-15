@@ -1,7 +1,7 @@
 "use client";
 import React from 'react'
 import Sidelink from '../common/Sidelink'
-import { Users, LayoutDashboard, UserCog, SquareUser, BriefcaseBusiness, Folders, Building2 } from 'lucide-react'
+import { Users, LayoutDashboard, UserCog, SquareUser, BriefcaseBusiness, Folders, Building2, FolderKey } from 'lucide-react'
 
 function Sidebar() {
     return (
@@ -31,7 +31,11 @@ function Sidebar() {
                         href="/dashboard/users/role-management"
                         icon={<UserCog />}
                     />
-
+                    <Sidelink
+                        title="Permission Management"
+                        href="/dashboard/users/permission-management"
+                        icon={<FolderKey />}
+                    />
                 </Sidelink>
                 <Sidelink
                     title="Master Data"

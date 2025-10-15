@@ -9,11 +9,12 @@ import Inputrole from '../../../../components/pages/roles/Inputrole';
 import { toast, ToastContainer } from 'react-toastify' // ✅ Tambahkan ini
 import 'react-toastify/dist/ReactToastify.css' // ✅ Import CSS
 import Modaldelete from '../../../../components/common/Modaldelete';
+import InputPermissions from '../../../../components/pages/permission/InputPermissions';
 
-function RoleManagement() {
+function PermissionManagement() {
     const [isOpen, setIsOpen] = useState(false);
     const [isOpenDelete, setIsOpenDelete] = useState(false);
-    const [roles, setroles] = useState([]);
+    const [permissions, setPermissions] = useState([]);
     const [loading, setLoading] = useState(true);
     const [searchTerm, setSearchTerm] = useState('');
     const [formData, setFormData] = useState({
@@ -30,7 +31,7 @@ function RoleManagement() {
     const [modalData, setModalData] = useState({
         title: '',
         mode: 'add', // 'add' | 'edit'
-        editId: null, // id role kalau edit
+        editId: null, // id Permissions kalau edit
     });
 
     const [modalDataDelete, setModalDataDelete] = useState({
@@ -39,16 +40,16 @@ function RoleManagement() {
 
     const token = typeof window !== "undefined" ? localStorage.getItem("token") : null;
 
-    const fetchroles = async (page = 1, search = '') => {
+    const fetchPermissions = async (page = 1, search = '') => {
         try {
-            const res = await axios.get(`http://127.0.0.1:8000/api/roles?page=${page}&search=${search}`, {
+            const res = await axios.get(`http://127.0.0.1:8000/api/permissions?page=${page}&search=${search}`, {
                 headers: {
                     Authorization: `Bearer ${token}`,
                     Accept: "application/json"
                 }
             });
             const paginated = res.data.data;
-            setroles(paginated.data);
+            setPermissions(paginated.data);
             setPagination({
                 current_page: paginated.current_page,
                 last_page: paginated.last_page,
@@ -56,8 +57,8 @@ function RoleManagement() {
                 total: paginated.total
             });
         } catch (error) {
-            console.error("Gagal mengambil data role:", error);
-            toast.error("Gagal mengambil data role 😞");
+            console.error("Gagal mengambil data Permissions:", error);
+            toast.error("Gagal mengambil data Permissions 😞");
         } finally {
             setLoading(false);
         }
@@ -65,7 +66,7 @@ function RoleManagement() {
     useEffect(() => {
         if (searchTerm.trim() !== '') setLoading(true);
         const timeout = setTimeout(() => {
-            fetchroles(searchTerm);
+            fetchPermissions(searchTerm);
         }, 500);
         return () => clearTimeout(timeout);
     }, [searchTerm]);
@@ -74,19 +75,19 @@ function RoleManagement() {
     const handlePageChange = (page) => {
         if (page < 1 || page > pagination.last_page) return;
         setLoading(true);
-        fetchUsers(page, searchTerm);
+        fetchPermissions(page, searchTerm);
     };
 
-    // 🔹 Tambah atau edit role
-    const handleSaveRoles = async () => {
+    // 🔹 Tambah atau edit Permissions
+    const handleSavePermissions = async () => {
         const { mode, editId } = modalData;
         console.log('FINAL FORM DATA:', formData);
 
         try {
             const url =
                 mode === 'edit'
-                    ? `http://127.0.0.1:8000/api/roles/${editId}`
-                    : 'http://127.0.0.1:8000/api/roles';
+                    ? `http://127.0.0.1:8000/api/permissions/${editId}`
+                    : 'http://127.0.0.1:8000/api/permissions';
 
             const method = mode === 'edit' ? 'put' : 'post';
 
@@ -100,63 +101,63 @@ function RoleManagement() {
                 },
             });
 
-            await fetchroles();
+            await fetchPermissions();
             setIsOpen(false);
             setFormData({ name: '', guard_name: '' });
             // ✅ Toast notifikasi sukses
             if (mode === 'edit') {
-                toast.info("Role berhasil diperbarui");
+                toast.info("Permissions berhasil diperbarui");
             } else {
-                toast.success("Role berhasil ditambahkan");
+                toast.success("Permissions berhasil ditambahkan");
             }
         } catch (error) {
             console.error(
-                mode === 'edit' ? 'Gagal mengupdate role:' : 'Gagal menambahkan role:',
+                mode === 'edit' ? 'Gagal mengupdate Permissions:' : 'Gagal menambahkan Permissions:',
                 error.response?.data || error.message
             );
-            toast.error(mode === 'edit' ? "Gagal memperbarui role ⚠️" : "Gagal menambahkan role 🚫");
+            toast.error(mode === 'edit' ? "Gagal memperbarui Permissions ⚠️" : "Gagal menambahkan Permissions 🚫");
         }
     };
 
     // 🔹 Buka modal Add
-    const openAddRoleModal = () => {
+    const openAddPermissionsModal = () => {
         setFormData({ name: '', guard_name: '' });
-        setModalData({ title: 'Add New Role', mode: 'add', editId: null });
+        setModalData({ title: 'Add New Permissions', mode: 'add', editId: null });
         setIsOpen(true);
     };
     // 🔹 Buka modal Edit
-    const openEditRoleModal = (roles) => {
+    const openEditPermissionsModal = (permissions) => {
         setFormData({
-            name: roles.name || '',
-            guard_name: roles.guard_name || '',
+            name: permissions.name || '',
+            guard_name: permissions.guard_name || '',
         });
-        setModalData({ title: 'Edit Role', mode: 'edit', editId: roles.id });
+        setModalData({ title: 'Edit Permissions', mode: 'edit', editId: permissions.id });
         setIsOpen(true);
     };
 
-    const handleDeleteRoles = async () => {
+    const handleDeletePermissions = async () => {
         try {
-            const res = await axios.delete(`http://127.0.0.1:8000/api/roles/${modalDataDelete.id}`, {
+            const res = await axios.delete(`http://127.0.0.1:8000/api/permissions/${modalDataDelete.id}`, {
                 headers: {
                     Authorization: `Bearer ${token}`,
                     Accept: "application/json",
                 },
             });
 
-            console.log("Berhasil menghapus Role:", res.data);
-            await fetchroles(); // refresh data tabel
+            console.log("Berhasil menghapus Permissions:", res.data);
+            await fetchPermissions(); // refresh data tabel
             setIsOpenDelete(false); // tutup modal
-            toast.success("Role berhasil dihapus 🗑️");
+            toast.success("Permissions berhasil dihapus 🗑️");
         } catch (error) {
-            console.error("Gagal menghapus Role:", error.response?.data || error.message);
-            toast.error("Gagal menghapus Role ❌");
+            console.error("Gagal menghapus Permissions:", error.response?.data || error.message);
+            toast.error("Gagal menghapus Permissions ❌");
         }
     };
 
-    const openModalDelete = (roles) => {
+    const openModalDelete = (permissions) => {
         setModalDataDelete({
-            title: `Hapus user "${roles.name}"?`,
-            id: roles.id,
+            title: `Hapus user "${permissions.name}"?`,
+            id: permissions.id,
         });
         setIsOpenDelete(true);
     };
@@ -164,14 +165,14 @@ function RoleManagement() {
     return (
         <DashboardPage>
             <h2 className="intro-y text-lg font-medium pt-24">
-                Role Management
+                Permission Management
             </h2>
             <div className="grid grid-cols-12 gap-6 mt-5">
                 <div className="intro-y col-span-12 flex flex-wrap sm:flex-nowrap items-center mt-2">
                     <button
-                        onClick={openAddRoleModal}
+                        onClick={openAddPermissionsModal}
                         className="btn btn-secondary shadow-md mr-2">
-                        <UserPlus className='pr-1.5' /> New Role
+                        <UserPlus className='pr-1.5' /> New Permissions
                     </button>
 
                     <div className="hidden md:block mx-auto text-slate-500"></div>
@@ -202,35 +203,35 @@ function RoleManagement() {
                                 <tr>
                                     <td colSpan="4" className="text-center py-4">Loading...</td>
                                 </tr>
-                            ) : roles.length > 0 ? (
-                                [...roles]
-                                    .filter((roles) =>
-                                        roles.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
-                                        roles.guard_name.toLowerCase().includes(searchTerm.toLowerCase())
+                            ) : permissions.length > 0 ? (
+                                [...permissions]
+                                    .filter((permissions) =>
+                                        permissions.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
+                                        permissions.guard_name.toLowerCase().includes(searchTerm.toLowerCase())
                                     )
                                     .sort((a, b) => new Date(a.created_at) - new Date(b.created_at))
-                                    .map((roles, index) => (
+                                    .map((permissions, index) => (
                                         <motion.tr
-                                            key={roles.id}
+                                            key={permissions.id}
                                             whileHover={{ scale: 1.02 }}>
                                             <td className="w-60">
                                                 <div className="">
-                                                    {roles.name}
+                                                    {permissions.name}
                                                 </div>
                                             </td>
                                             <td>
-                                                {roles.guard_name}
+                                                {permissions.guard_name}
                                             </td>
                                             <td className="table-report__action w-56">
                                                 <div className="flex justify-center items-center">
                                                     <button
-                                                        onClick={() => openEditRoleModal(roles)}
+                                                        onClick={() => openEditPermissionsModal(permissions)}
                                                         className="flex items-center mr-3"
                                                     >
                                                         <CheckSquare className="w-4 h-4 mr-1" /> Edit
                                                     </button>
                                                     <button
-                                                        onClick={() => openModalDelete(roles)}
+                                                        onClick={() => openModalDelete(permissions)}
                                                         className="flex items-center text-danger"
                                                     >
                                                         <Trash2 className="w-4 h-4 mr-1" /> Delete
@@ -291,15 +292,15 @@ function RoleManagement() {
                 isOpen={isOpen}
                 onClose={() => setIsOpen(false)}
                 title={modalData.title}
-                onSave={handleSaveRoles}
+                onSave={handleSavePermissions}
             >
-                <Inputrole formData={formData} setFormData={setFormData} />
+                <InputPermissions formData={formData} setFormData={setFormData} />
             </Modal>
 
             <Modaldelete
                 isOpenDelete={isOpenDelete}
                 onClose={() => setIsOpenDelete(false)}
-                onDelete={handleDeleteRoles}
+                onDelete={handleDeletePermissions}
                 title={modalDataDelete.title}
             >
                 {modalDataDelete.content}
@@ -308,4 +309,4 @@ function RoleManagement() {
     )
 }
 
-export default RoleManagement
+export default PermissionManagement

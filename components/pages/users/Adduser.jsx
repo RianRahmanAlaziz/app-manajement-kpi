@@ -22,7 +22,7 @@ function Adduser({ formData, setFormData }) {
                         Accept: "application/json",
                     },
                 })
-                setRoles(res.data.data)
+                setRoles(res.data.data.data)
             } catch (error) {
                 console.error("Gagal memuat role:", error)
             }
@@ -68,9 +68,9 @@ function Adduser({ formData, setFormData }) {
                     required
                 >
                     <option value="">Pilih Role</option>
-                    {roles.map(roles => (
-                        <option key={roles.id} value={roles.name}>
-                            {roles.name}
+                    {Array.isArray(roles) && roles.map(role => (
+                        <option key={role.id} value={role.name}>
+                            {role.name}
                         </option>
                     ))}
                 </select>

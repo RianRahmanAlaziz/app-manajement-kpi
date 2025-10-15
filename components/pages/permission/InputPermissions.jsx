@@ -1,14 +1,12 @@
 import React from 'react'
 
-function Inputrole({ formData, setFormData }) {
-
+function InputPermissions({ formData, setFormData }) {
     const handleChange = (e) => {
         setFormData({
             ...formData,
             [e.target.name]: e.target.value,
         });
     };
-
     return (
         <>
             <div className="col-span-6 sm:col-span-12">
@@ -45,4 +43,4 @@ function Inputrole({ formData, setFormData }) {
     )
 }
 
-export default Inputrole
+export default InputPermissions

@@ -135,7 +135,14 @@ function PageUsers() {
     };
     // 🔹 Buka modal Edit
     const openEditUserModal = (user) => {
-        setFormData({ name: user.name || '', email: user.email || '', password: '' });
+        setFormData({
+            name: user.name || '',
+            email: user.email || '',
+            password: '',
+            roles: Array.isArray(user.roles) && user.roles.length > 0
+                ? user.roles[0].name
+                : '', // ambil role pertama
+        });
         setModalData({ title: 'Edit User', mode: 'edit', editId: user.id });
         setIsOpen(true);
     };
@@ -218,7 +225,7 @@ function PageUsers() {
                                     )
                                     .sort((a, b) => new Date(a.created_at) - new Date(b.created_at))
                                     .map((user, index) => (
-                                        <motion.tr key={user.id} whileHover={{ scale: 1.03 }}>
+                                        <motion.tr key={user.id} whileHover={{ scale: 1.02 }}>
                                             <td className="w-40">
                                                 <div className="flex">
                                                     <Tippy
@@ -245,8 +252,8 @@ function PageUsers() {
                                                 <div className="text-slate-500 text-xs whitespace-nowrap mt-0.5">{user.email}</div>
                                             </td>
                                             <td className="w-40">
-                                                <div className="flex items-center justify-center text-success">
-                                                    <CheckSquare className="w-4 h-4 mr-2" /> Active
+                                                <div className="flex items-center justify-center ">
+                                                    {user.role_names?.join(', ') || 'No role'}
                                                 </div>
                                             </td>
                                             <td className="table-report__action w-56">
