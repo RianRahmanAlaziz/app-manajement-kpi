@@ -20,6 +20,7 @@ function RoleManagement() {
         name: "",
         guard_name: "",
     });
+    const [errors, setErrors] = useState({});
     const [pagination, setPagination] = useState({
         current_page: 1,
         last_page: 1,
@@ -103,6 +104,7 @@ function RoleManagement() {
             await fetchroles();
             setIsOpen(false);
             setFormData({ name: '', guard_name: '' });
+            setErrors({});
             // ✅ Toast notifikasi sukses
             if (mode === 'edit') {
                 toast.info("Role berhasil diperbarui");
@@ -110,17 +112,22 @@ function RoleManagement() {
                 toast.success("Role berhasil ditambahkan");
             }
         } catch (error) {
-            console.error(
-                mode === 'edit' ? 'Gagal mengupdate role:' : 'Gagal menambahkan role:',
-                error.response?.data || error.message
-            );
-            toast.error(mode === 'edit' ? "Gagal memperbarui role ⚠️" : "Gagal menambahkan role 🚫");
+            console.error("❌ Error response:", error.response?.data);
+
+            if (error.response?.status === 422) {
+                // ✅ Ambil pesan error validasi dari Laravel
+                setErrors(error.response.data.errors || {});
+            } else {
+                toast.error(mode === 'edit' ? "Gagal memperbarui role ⚠️" : "Gagal menambahkan role 🚫");
+            }
+
         }
     };
 
     // 🔹 Buka modal Add
     const openAddRoleModal = () => {
         setFormData({ name: '', guard_name: '' });
+        setErrors({}); // ✅ reset error
         setModalData({ title: 'Add New Role', mode: 'add', editId: null });
         setIsOpen(true);
     };
@@ -130,6 +137,7 @@ function RoleManagement() {
             name: roles.name || '',
             guard_name: roles.guard_name || '',
         });
+        setErrors({}); // ✅ reset error
         setModalData({ title: 'Edit Role', mode: 'edit', editId: roles.id });
         setIsOpen(true);
     };
@@ -293,7 +301,7 @@ function RoleManagement() {
                 title={modalData.title}
                 onSave={handleSaveRoles}
             >
-                <Inputrole formData={formData} setFormData={setFormData} />
+                <Inputrole formData={formData} setFormData={setFormData} errors={errors} setErrors={setErrors} />
             </Modal>
 
             <Modaldelete

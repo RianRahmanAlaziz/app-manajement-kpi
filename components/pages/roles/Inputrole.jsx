@@ -1,12 +1,20 @@
-import React from 'react'
+import React, { useState } from 'react';
 
-function Inputrole({ formData, setFormData }) {
+function Inputrole({ formData, setFormData, errors, setErrors }) {
+
 
     const handleChange = (e) => {
         setFormData({
             ...formData,
             [e.target.name]: e.target.value,
         });
+
+        if (errors && errors[e.target.name]) {
+            setErrors({
+                ...errors,
+                [e.target.name]: undefined,
+            });
+        }
     };
 
     return (
@@ -23,6 +31,9 @@ function Inputrole({ formData, setFormData }) {
                     placeholder="Name"
                     required
                 />
+                {errors?.name && (
+                    <small className="text-danger">{errors.name[0]}</small>
+                )}
             </div>
             <div className="col-span-6 sm:col-span-12">
                 <label htmlFor="guard_name" className="form-label">guard_name</label>
@@ -39,6 +50,9 @@ function Inputrole({ formData, setFormData }) {
                     <option value="web">Web</option>
                     <option value="api">Api</option>
                 </select>
+                {errors?.guard_name && (
+                    <small className="text-danger">{errors.guard_name[0]}</small>
+                )}
             </div>
 
         </>

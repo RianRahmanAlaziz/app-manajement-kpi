@@ -17,6 +17,7 @@ function PermissionManagement() {
     const [permissions, setPermissions] = useState([]);
     const [loading, setLoading] = useState(true);
     const [searchTerm, setSearchTerm] = useState('');
+    const [errors, setErrors] = useState({});
     const [formData, setFormData] = useState({
         name: "",
         guard_name: "",
@@ -104,6 +105,7 @@ function PermissionManagement() {
             await fetchPermissions();
             setIsOpen(false);
             setFormData({ name: '', guard_name: '' });
+            setErrors({});
             // ✅ Toast notifikasi sukses
             if (mode === 'edit') {
                 toast.info("Permissions berhasil diperbarui");
@@ -111,17 +113,21 @@ function PermissionManagement() {
                 toast.success("Permissions berhasil ditambahkan");
             }
         } catch (error) {
-            console.error(
-                mode === 'edit' ? 'Gagal mengupdate Permissions:' : 'Gagal menambahkan Permissions:',
-                error.response?.data || error.message
-            );
-            toast.error(mode === 'edit' ? "Gagal memperbarui Permissions ⚠️" : "Gagal menambahkan Permissions 🚫");
+            console.error("❌ Error response:", error.response?.data);
+
+            if (error.response?.status === 422) {
+                // ✅ Ambil pesan error validasi dari Laravel
+                setErrors(error.response.data.errors || {});
+            } else {
+                toast.error(mode === 'edit' ? "Gagal memperbarui role ⚠️" : "Gagal menambahkan role 🚫");
+            }
         }
     };
 
     // 🔹 Buka modal Add
     const openAddPermissionsModal = () => {
         setFormData({ name: '', guard_name: '' });
+        setErrors({});
         setModalData({ title: 'Add New Permissions', mode: 'add', editId: null });
         setIsOpen(true);
     };
@@ -131,6 +137,7 @@ function PermissionManagement() {
             name: permissions.name || '',
             guard_name: permissions.guard_name || '',
         });
+        setErrors({});
         setModalData({ title: 'Edit Permissions', mode: 'edit', editId: permissions.id });
         setIsOpen(true);
     };
@@ -294,7 +301,7 @@ function PermissionManagement() {
                 title={modalData.title}
                 onSave={handleSavePermissions}
             >
-                <InputPermissions formData={formData} setFormData={setFormData} />
+                <InputPermissions formData={formData} setFormData={setFormData} errors={errors} setErrors={setErrors} />
             </Modal>
 
             <Modaldelete
