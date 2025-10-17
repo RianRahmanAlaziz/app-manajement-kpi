@@ -1,8 +1,10 @@
 import React, { useEffect, useState } from 'react'
 import axios from 'axios'
+import Select from "react-select";
 
 function Adduser({ formData, setFormData }) {
     const [roles, setRoles] = useState([])
+    const [loading, setLoading] = useState(true)
 
     const handleChange = (e) => {
         const { name, value } = e.target;
@@ -12,6 +14,7 @@ function Adduser({ formData, setFormData }) {
             [name]: value,
         }));
     };
+
     useEffect(() => {
         const fetchRoles = async () => {
             try {
@@ -26,9 +29,19 @@ function Adduser({ formData, setFormData }) {
             } catch (error) {
                 console.error("Gagal memuat role:", error)
             }
+            finally {
+                setLoading(false); // ⬅️ Set loading ke false setelah data selesai di-load
+            }
         }
         fetchRoles()
     }, [])
+    const options = roles.map((role) => ({
+        value: role.name,
+        label: role.name,
+    }));
+
+
+
     return (
         <>
             <div className="col-span-6 sm:col-span-12">
@@ -59,21 +72,19 @@ function Adduser({ formData, setFormData }) {
             </div>
             <div className="col-span-6 sm:col-span-12">
                 <label htmlFor="roles" className="form-label">Role</label>
-                <select
+                <Select
                     id="roles"
                     name="roles"
-                    value={formData.roles || ""}
-                    onChange={handleChange}
-                    className="form-select"
-                    required
-                >
-                    <option value="">Pilih Role</option>
-                    {Array.isArray(roles) && roles.map(role => (
-                        <option key={role.id} value={role.name}>
-                            {role.name}
-                        </option>
-                    ))}
-                </select>
+                    options={options}
+                    placeholder={loading ? "Memuat data role..." : "Pilih Role"}
+                    value={options.find((opt) => opt.value === formData.roles) || null}
+                    onChange={(selected) => handleChange({ target: { name: "roles", value: selected?.value } })}
+                    isSearchable={false}
+                    isLoading={loading}     // ⬅️ Aktifkan spinner bawaan react-select
+                    isDisabled={loading}
+                    className="form-control"
+                    classNamePrefix="react-select"
+                />
             </div>
             <div className="col-span-6 sm:col-span-12">
                 <label htmlFor="password" className="form-label">Password</label>

@@ -1,4 +1,5 @@
 import React, { useState } from 'react';
+import Select from "react-select";
 
 function Inputrole({ formData, setFormData, errors, setErrors }) {
 
@@ -16,7 +17,10 @@ function Inputrole({ formData, setFormData, errors, setErrors }) {
             });
         }
     };
-
+    const guardOptions = [
+        { value: "web", label: "Web" },
+        { value: "api", label: "Api" },
+    ];
     return (
         <>
             <div className="col-span-6 sm:col-span-12">
@@ -38,18 +42,17 @@ function Inputrole({ formData, setFormData, errors, setErrors }) {
             <div className="col-span-6 sm:col-span-12">
                 <label htmlFor="guard_name" className="form-label">guard_name</label>
 
-                <select
+                <Select
                     id="guard_name"
                     name="guard_name"
-                    value={formData.guard_name || ""}
-                    onChange={handleChange}
-                    className="form-select"
-                    required
-                >
-                    <option value="">-- Pilih Guard --</option>
-                    <option value="web">Web</option>
-                    <option value="api">Api</option>
-                </select>
+                    placeholder="-- Pilih Guard --"
+                    options={guardOptions}
+                    value={guardOptions.find((option) => option.value === formData.guard_name) || null}
+                    onChange={(selected) => handleChange({ target: { name: "guard_name", value: selected?.value } })}
+                    className="form-control"
+                    classNamePrefix="react-select"
+                    isSearchable={false}
+                />
                 {errors?.guard_name && (
                     <small className="text-danger">{errors.guard_name[0]}</small>
                 )}
