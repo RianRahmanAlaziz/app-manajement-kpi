@@ -28,12 +28,12 @@ function Sidebar() {
                     />
                     <Sidelink
                         title="Role Management"
-                        href="/dashboard/users/role-management"
+                        href="/dashboard/users/role"
                         icon={<UserCog />}
                     />
                     <Sidelink
                         title="Permission Management"
-                        href="/dashboard/users/permission-management"
+                        href="/dashboard/users/permission"
                         icon={<FolderKey />}
                     />
                 </Sidelink>
@@ -44,13 +44,13 @@ function Sidebar() {
                     }
                 >
                     <Sidelink
-                        title="Master Departemen"
-                        href="/users/add"
+                        title="Master Departement"
+                        href="/dashboard/departement"
                         icon={<Building2 />}
                     />
                     <Sidelink
                         title="Master Jabatan"
-                        href="/users/add"
+                        href="/dashboard/jabatan"
                         icon={<BriefcaseBusiness />}
                     />
                 </Sidelink>

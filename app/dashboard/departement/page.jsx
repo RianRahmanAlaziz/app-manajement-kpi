@@ -2,25 +2,23 @@
 import axios from 'axios';
 import { useState, useEffect } from 'react'
 import { motion } from "framer-motion";
-import DashboardPage from '../../page';
-import Modal from '../../../../components/common/Modal';
+import DashboardPage from '../page';
 import { CheckSquare, Trash2, ChevronLeft, ChevronsLeft, ChevronRight, ChevronsRight, UserPlus } from 'lucide-react'
-import Inputrole from '../../../../components/pages/roles/Inputrole';
-import { toast, ToastContainer } from 'react-toastify' // ✅ Tambahkan ini
-import 'react-toastify/dist/ReactToastify.css' // ✅ Import CSS
-import Modaldelete from '../../../../components/common/Modaldelete';
-import InputPermissions from '../../../../components/pages/permission/InputPermissions';
+import { toast } from 'react-toastify'
+import 'react-toastify/dist/ReactToastify.css'
+import Modal from '../../../components/common/Modal';
+import Modaldelete from '../../../components/common/Modaldelete';
+import InputDepartement from '../../../components/pages/departement/InputDepartement';
 
-function PermissionManagement() {
+function DepartementPage() {
     const [isOpen, setIsOpen] = useState(false);
     const [isOpenDelete, setIsOpenDelete] = useState(false);
-    const [permissions, setPermissions] = useState([]);
+    const [departement, setDepartement] = useState([]);
     const [loading, setLoading] = useState(true);
     const [searchTerm, setSearchTerm] = useState('');
     const [errors, setErrors] = useState({});
     const [formData, setFormData] = useState({
-        name: "",
-        guard_name: "",
+        n_departement: "",
     });
     const [pagination, setPagination] = useState({
         current_page: 1,
@@ -40,17 +38,16 @@ function PermissionManagement() {
     });
 
     const token = typeof window !== "undefined" ? localStorage.getItem("token") : null;
-
-    const fetchPermissions = async (page = 1, search = '') => {
+    const fetchDepartement = async (page = 1, search = '') => {
         try {
-            const res = await axios.get(`http://127.0.0.1:8000/api/permissions?page=${page}&search=${search}`, {
+            const res = await axios.get(`http://127.0.0.1:8000/api/departement?page=${page}&search=${search}`, {
                 headers: {
                     Authorization: `Bearer ${token}`,
                     Accept: "application/json"
                 }
             });
             const paginated = res.data.data;
-            setPermissions(paginated.data);
+            setDepartement(paginated.data);
             setPagination({
                 current_page: paginated.current_page,
                 last_page: paginated.last_page,
@@ -58,8 +55,8 @@ function PermissionManagement() {
                 total: paginated.total
             });
         } catch (error) {
-            console.error("Gagal mengambil data Permissions:", error);
-            toast.error("Gagal mengambil data Permissions 😞");
+            console.error("Gagal mengambil data Departement:", error);
+            toast.error("Gagal mengambil data Departement 😞");
         } finally {
             setLoading(false);
         }
@@ -67,7 +64,7 @@ function PermissionManagement() {
     useEffect(() => {
         if (searchTerm.trim() !== '') setLoading(true);
         const timeout = setTimeout(() => {
-            fetchPermissions(searchTerm);
+            fetchDepartement(searchTerm);
         }, 500);
         return () => clearTimeout(timeout);
     }, [searchTerm]);
@@ -76,19 +73,18 @@ function PermissionManagement() {
     const handlePageChange = (page) => {
         if (page < 1 || page > pagination.last_page) return;
         setLoading(true);
-        fetchPermissions(page, searchTerm);
+        fetchDepartement(page, searchTerm);
     };
-
-    // 🔹 Tambah atau edit Permissions
-    const handleSavePermissions = async () => {
+    // 🔹 Tambah atau edit Departement
+    const handleSaveDepartement = async () => {
         const { mode, editId } = modalData;
         console.log('FINAL FORM DATA:', formData);
 
         try {
             const url =
                 mode === 'edit'
-                    ? `http://127.0.0.1:8000/api/permissions/${editId}`
-                    : 'http://127.0.0.1:8000/api/permissions';
+                    ? `http://127.0.0.1:8000/api/departement/${editId}`
+                    : 'http://127.0.0.1:8000/api/departement';
 
             const method = mode === 'edit' ? 'put' : 'post';
 
@@ -102,15 +98,15 @@ function PermissionManagement() {
                 },
             });
 
-            await fetchPermissions();
+            await fetchDepartement();
             setIsOpen(false);
-            setFormData({ name: '', guard_name: '' });
+            setFormData({ n_departement: '' });
             setErrors({});
             // ✅ Toast notifikasi sukses
             if (mode === 'edit') {
-                toast.info("Permissions berhasil diperbarui");
+                toast.info("Departement berhasil diperbarui");
             } else {
-                toast.success("Permissions berhasil ditambahkan");
+                toast.success("Departement berhasil ditambahkan");
             }
         } catch (error) {
             console.error("❌ Error response:", error.response?.data);
@@ -119,52 +115,64 @@ function PermissionManagement() {
                 // ✅ Ambil pesan error validasi dari Laravel
                 setErrors(error.response.data.errors || {});
             } else {
-                toast.error(mode === 'edit' ? "Gagal memperbarui role ⚠️" : "Gagal menambahkan role 🚫");
+                toast.error(mode === 'edit' ? "Gagal memperbarui Departement ⚠️" : "Gagal menambahkan Departement 🚫");
             }
         }
     };
 
     // 🔹 Buka modal Add
-    const openAddPermissionsModal = () => {
-        setFormData({ name: '', guard_name: '' });
+    const openAddDepartementModal = () => {
+        setFormData({ n_departement: '' });
         setErrors({});
-        setModalData({ title: 'Add New Permissions', mode: 'add', editId: null });
-        setIsOpen(true);
-    };
-    // 🔹 Buka modal Edit
-    const openEditPermissionsModal = (permissions) => {
-        setFormData({
-            name: permissions.name || '',
-            guard_name: permissions.guard_name || '',
-        });
-        setErrors({});
-        setModalData({ title: 'Edit Permissions', mode: 'edit', editId: permissions.id });
+        setModalData({ title: 'Add New Departement', mode: 'add', editId: null });
         setIsOpen(true);
     };
 
-    const handleDeletePermissions = async () => {
+    // 🔹 Buka modal Edit
+    const openEditDepartementModal = (departement) => {
+        setFormData({
+            n_departement: departement.n_departement || ''
+        });
+        setErrors({});
+        setModalData({ title: 'Edit Departement', mode: 'edit', editId: departement.id });
+        setIsOpen(true);
+    };
+
+    const handleDeleteDepartement = async () => {
         try {
-            const res = await axios.delete(`http://127.0.0.1:8000/api/permissions/${modalDataDelete.id}`, {
+            const res = await axios.delete(`http://127.0.0.1:8000/api/departement/${modalDataDelete.id}`, {
                 headers: {
                     Authorization: `Bearer ${token}`,
                     Accept: "application/json",
                 },
             });
 
-            console.log("Berhasil menghapus Permissions:", res.data);
-            await fetchPermissions(); // refresh data tabel
+            console.log("Berhasil menghapus Departement:", res.data);
+            await fetchDepartement(); // refresh data tabel
             setIsOpenDelete(false); // tutup modal
-            toast.success("Permissions berhasil dihapus 🗑️");
+            toast.success("Departement berhasil dihapus 🗑️");
         } catch (error) {
-            console.error("Gagal menghapus Permissions:", error.response?.data || error.message);
-            toast.error("Gagal menghapus Permissions ❌");
+            setIsOpenDelete(false); // tutup modal
+            console.error("Gagal menghapus Departement:", error.response?.data || error.message);
+            // Ambil pesan error dari controller Laravel
+            const errorMessage =
+                error.response?.data?.message ||
+                "Terjadi kesalahan saat menghapus Departement ❌";
+
+            // Tampilkan di toast
+            toast.error(errorMessage);
+
+            // Jika mau, kamu juga bisa tampilkan pesan detail di console untuk debugging:
+            if (error.response?.data?.error) {
+                console.error("Detail error:", error.response.data.error);
+            }
         }
     };
 
-    const openModalDelete = (permissions) => {
+    const openModalDelete = (departement) => {
         setModalDataDelete({
-            title: `Hapus user "${permissions.name}"?`,
-            id: permissions.id,
+            title: `Hapus user "${departement.name}"?`,
+            id: departement.id,
         });
         setIsOpenDelete(true);
     };
@@ -172,14 +180,14 @@ function PermissionManagement() {
     return (
         <DashboardPage>
             <h2 className="intro-y text-lg font-medium pt-24">
-                Permission Management
+                Departement Management
             </h2>
             <div className="grid grid-cols-12 gap-6 mt-5">
                 <div className="intro-y col-span-12 flex flex-wrap sm:flex-nowrap items-center mt-2">
                     <button
-                        onClick={openAddPermissionsModal}
+                        onClick={openAddDepartementModal}
                         className="btn btn-secondary shadow-md mr-2">
-                        <UserPlus className='pr-1.5' /> New Permissions
+                        <UserPlus className='pr-1.5' /> New Departement
                     </button>
 
                     <div className="hidden md:block mx-auto text-slate-500"></div>
@@ -201,7 +209,6 @@ function PermissionManagement() {
                         <thead>
                             <tr>
                                 <th className="whitespace-nowrap">NAME</th>
-                                <th className="whitespace-nowrap">GUARD NAME</th>
                                 <th className="text-center whitespace-nowrap">ACTIONS</th>
                             </tr>
                         </thead>
@@ -210,35 +217,31 @@ function PermissionManagement() {
                                 <tr>
                                     <td colSpan="4" className="text-center py-4">Loading...</td>
                                 </tr>
-                            ) : permissions.length > 0 ? (
-                                [...permissions]
-                                    .filter((permissions) =>
-                                        permissions.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
-                                        permissions.guard_name.toLowerCase().includes(searchTerm.toLowerCase())
+                            ) : departement.length > 0 ? (
+                                [...departement]
+                                    .filter((departement) =>
+                                        departement.n_departement.toLowerCase().includes(searchTerm.toLowerCase())
                                     )
                                     .sort((a, b) => new Date(a.created_at) - new Date(b.created_at))
-                                    .map((permissions, index) => (
+                                    .map((departement, index) => (
                                         <motion.tr
-                                            key={permissions.id}
+                                            key={departement.id}
                                             whileHover={{ scale: 1.02 }}>
                                             <td className="w-60">
                                                 <div className="">
-                                                    {permissions.name}
+                                                    {departement.n_departement}
                                                 </div>
-                                            </td>
-                                            <td>
-                                                {permissions.guard_name}
                                             </td>
                                             <td className="table-report__action w-56">
                                                 <div className="flex justify-center items-center">
                                                     <button
-                                                        onClick={() => openEditPermissionsModal(permissions)}
+                                                        onClick={() => openEditDepartementModal(departement)}
                                                         className="flex items-center mr-3"
                                                     >
                                                         <CheckSquare className="w-4 h-4 mr-1" /> Edit
                                                     </button>
                                                     <button
-                                                        onClick={() => openModalDelete(permissions)}
+                                                        onClick={() => openModalDelete(departement)}
                                                         className="flex items-center text-danger"
                                                     >
                                                         <Trash2 className="w-4 h-4 mr-1" /> Delete
@@ -299,21 +302,21 @@ function PermissionManagement() {
                 isOpen={isOpen}
                 onClose={() => setIsOpen(false)}
                 title={modalData.title}
-                onSave={handleSavePermissions}
+                onSave={handleSaveDepartement}
             >
-                <InputPermissions formData={formData} setFormData={setFormData} errors={errors} setErrors={setErrors} />
+                <InputDepartement formData={formData} setFormData={setFormData} errors={errors} setErrors={setErrors} />
             </Modal>
 
             <Modaldelete
                 isOpenDelete={isOpenDelete}
                 onClose={() => setIsOpenDelete(false)}
-                onDelete={handleDeletePermissions}
+                onDelete={handleDeleteDepartement}
                 title={modalDataDelete.title}
             >
                 {modalDataDelete.content}
             </Modaldelete>
-        </DashboardPage >
+        </DashboardPage>
     )
 }
 
-export default PermissionManagement
+export default DepartementPage

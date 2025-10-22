@@ -1,8 +1,10 @@
-import React, { useState } from 'react';
+import React, { useEffect, useState } from 'react'
+import axios from 'axios'
 import Select from "react-select";
 
 function Inputrole({ formData, setFormData, errors, setErrors }) {
-
+    const [permissions, setPermissions] = useState([])
+    const [loading, setLoading] = useState(true)
 
     const handleChange = (e) => {
         setFormData({
@@ -17,6 +19,32 @@ function Inputrole({ formData, setFormData, errors, setErrors }) {
             });
         }
     };
+    useEffect(() => {
+        const fetchPermissions = async () => {
+            try {
+                const token = localStorage.getItem("token")
+                const res = await axios.get("http://127.0.0.1:8000/api/permissions", {
+                    headers: {
+                        Authorization: `Bearer ${token}`,
+                        Accept: "application/json",
+                    },
+                })
+                setPermissions(res.data.data.data)
+            } catch (error) {
+                console.error("Gagal memuat Permissions:", error)
+            }
+            finally {
+                setLoading(false); // ⬅️ Set loading ke false setelah data selesai di-load
+            }
+        }
+        fetchPermissions()
+    }, [])
+
+    const Permissionsoptions = permissions.map((permission) => ({
+        value: permission.name,
+        label: permission.name,
+    }));
+
     const guardOptions = [
         { value: "web", label: "Web" },
         { value: "api", label: "Api" },
@@ -56,6 +84,22 @@ function Inputrole({ formData, setFormData, errors, setErrors }) {
                 {errors?.guard_name && (
                     <small className="text-danger">{errors.guard_name[0]}</small>
                 )}
+            </div>
+            <div className="col-span-6 sm:col-span-12">
+                <label htmlFor="permissions" className="form-label">Permissions</label>
+                <Select
+                    id="permissions"
+                    name="permissions"
+                    options={Permissionsoptions}
+                    placeholder={loading ? "Memuat data Permissions..." : "Pilih Permissions"}
+                    value={Permissionsoptions.find((opt) => opt.value === formData.permissions) || null}
+                    onChange={(selected) => handleChange({ target: { name: "permissions", value: selected?.value } })}
+                    isSearchable={false}
+                    isLoading={loading}     // ⬅️ Aktifkan spinner bawaan react-select
+                    isDisabled={loading}
+                    className="form-control"
+                    classNamePrefix="react-select"
+                />
             </div>
 
         </>

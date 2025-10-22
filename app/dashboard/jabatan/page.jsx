@@ -2,25 +2,25 @@
 import axios from 'axios';
 import { useState, useEffect } from 'react'
 import { motion } from "framer-motion";
-import DashboardPage from '../../page';
-import Modal from '../../../../components/common/Modal';
+import DashboardPage from '../page';
 import { CheckSquare, Trash2, ChevronLeft, ChevronsLeft, ChevronRight, ChevronsRight, UserPlus } from 'lucide-react'
-import Inputrole from '../../../../components/pages/roles/Inputrole';
-import { toast, ToastContainer } from 'react-toastify' // ✅ Tambahkan ini
-import 'react-toastify/dist/ReactToastify.css' // ✅ Import CSS
-import Modaldelete from '../../../../components/common/Modaldelete';
+import { toast } from 'react-toastify'
+import 'react-toastify/dist/ReactToastify.css'
+import Modal from '../../../components/common/Modal';
+import Modaldelete from '../../../components/common/Modaldelete';
+import InputJabatan from '../../../components/pages/jabatan/InputJabatan';
 
-function RoleManagement() {
+
+function JabatanPage() {
     const [isOpen, setIsOpen] = useState(false);
     const [isOpenDelete, setIsOpenDelete] = useState(false);
-    const [roles, setroles] = useState([]);
+    const [jabatan, setJabatan] = useState([]);
     const [loading, setLoading] = useState(true);
     const [searchTerm, setSearchTerm] = useState('');
-    const [formData, setFormData] = useState({
-        name: "",
-        guard_name: "",
-    });
     const [errors, setErrors] = useState({});
+    const [formData, setFormData] = useState({
+        n_jabatan: "",
+    });
     const [pagination, setPagination] = useState({
         current_page: 1,
         last_page: 1,
@@ -31,7 +31,7 @@ function RoleManagement() {
     const [modalData, setModalData] = useState({
         title: '',
         mode: 'add', // 'add' | 'edit'
-        editId: null, // id role kalau edit
+        editId: null, // id jabatan kalau edit
     });
 
     const [modalDataDelete, setModalDataDelete] = useState({
@@ -39,17 +39,16 @@ function RoleManagement() {
     });
 
     const token = typeof window !== "undefined" ? localStorage.getItem("token") : null;
-
-    const fetchroles = async (page = 1, search = '') => {
+    const fetchJabatan = async (page = 1, search = '') => {
         try {
-            const res = await axios.get(`http://127.0.0.1:8000/api/roles?page=${page}&search=${search}`, {
+            const res = await axios.get(`http://127.0.0.1:8000/api/jabatan?page=${page}&search=${search}`, {
                 headers: {
                     Authorization: `Bearer ${token}`,
                     Accept: "application/json"
                 }
             });
             const paginated = res.data.data;
-            setroles(paginated.data);
+            setJabatan(paginated.data);
             setPagination({
                 current_page: paginated.current_page,
                 last_page: paginated.last_page,
@@ -57,8 +56,8 @@ function RoleManagement() {
                 total: paginated.total
             });
         } catch (error) {
-            console.error("Gagal mengambil data role:", error);
-            toast.error("Gagal mengambil data role 😞");
+            console.error("Gagal mengambil data Jabatan:", error);
+            toast.error("Gagal mengambil data Jabatan 😞");
         } finally {
             setLoading(false);
         }
@@ -66,7 +65,7 @@ function RoleManagement() {
     useEffect(() => {
         if (searchTerm.trim() !== '') setLoading(true);
         const timeout = setTimeout(() => {
-            fetchroles(searchTerm);
+            fetchJabatan(searchTerm);
         }, 500);
         return () => clearTimeout(timeout);
     }, [searchTerm]);
@@ -75,19 +74,18 @@ function RoleManagement() {
     const handlePageChange = (page) => {
         if (page < 1 || page > pagination.last_page) return;
         setLoading(true);
-        fetchUsers(page, searchTerm);
+        fetchJabatan(page, searchTerm);
     };
-
-    // 🔹 Tambah atau edit role
-    const handleSaveRoles = async () => {
+    // 🔹 Tambah atau edit Jabatan
+    const handleSaveJabatan = async () => {
         const { mode, editId } = modalData;
         console.log('FINAL FORM DATA:', formData);
 
         try {
             const url =
                 mode === 'edit'
-                    ? `http://127.0.0.1:8000/api/roles/${editId}`
-                    : 'http://127.0.0.1:8000/api/roles';
+                    ? `http://127.0.0.1:8000/api/jabatan/${editId}`
+                    : 'http://127.0.0.1:8000/api/jabatan';
 
             const method = mode === 'edit' ? 'put' : 'post';
 
@@ -101,15 +99,15 @@ function RoleManagement() {
                 },
             });
 
-            await fetchroles();
+            await fetchJabatan();
             setIsOpen(false);
             setFormData({ name: '', guard_name: '' });
             setErrors({});
             // ✅ Toast notifikasi sukses
             if (mode === 'edit') {
-                toast.info("Role berhasil diperbarui");
+                toast.info("Jabatan berhasil diperbarui");
             } else {
-                toast.success("Role berhasil ditambahkan");
+                toast.success("Jabatan berhasil ditambahkan");
             }
         } catch (error) {
             console.error("❌ Error response:", error.response?.data);
@@ -118,68 +116,78 @@ function RoleManagement() {
                 // ✅ Ambil pesan error validasi dari Laravel
                 setErrors(error.response.data.errors || {});
             } else {
-                toast.error(mode === 'edit' ? "Gagal memperbarui role ⚠️" : "Gagal menambahkan role 🚫");
+                toast.error(mode === 'edit' ? "Gagal memperbarui Jabatan ⚠️" : "Gagal menambahkan Jabatan 🚫");
             }
-
         }
     };
 
     // 🔹 Buka modal Add
-    const openAddRoleModal = () => {
-        setFormData({ name: '', guard_name: '' });
-        setErrors({}); // ✅ reset error
-        setModalData({ title: 'Add New Role', mode: 'add', editId: null });
-        setIsOpen(true);
-    };
-    // 🔹 Buka modal Edit
-    const openEditRoleModal = (roles) => {
-        setFormData({
-            name: roles.name || '',
-            guard_name: roles.guard_name || '',
-        });
-        setErrors({}); // ✅ reset error
-        setModalData({ title: 'Edit Role', mode: 'edit', editId: roles.id });
+    const openAddJabatanModal = () => {
+        setFormData({ n_jabatan: '' });
+        setErrors({});
+        setModalData({ title: 'Add New Jabatan', mode: 'add', editId: null });
         setIsOpen(true);
     };
 
-    const handleDeleteRoles = async () => {
+    // 🔹 Buka modal Edit
+    const openEditJabatanModal = (jabatan) => {
+        setFormData({
+            n_jabatan: jabatan.n_jabatan || ''
+        });
+        setErrors({});
+        setModalData({ title: 'Edit Jabatan', mode: 'edit', editId: jabatan.id });
+        setIsOpen(true);
+    };
+
+    const handleDeleteJabatan = async () => {
         try {
-            const res = await axios.delete(`http://127.0.0.1:8000/api/roles/${modalDataDelete.id}`, {
+            const res = await axios.delete(`http://127.0.0.1:8000/api/jabatan/${modalDataDelete.id}`, {
                 headers: {
                     Authorization: `Bearer ${token}`,
                     Accept: "application/json",
                 },
             });
 
-            console.log("Berhasil menghapus Role:", res.data);
-            await fetchroles(); // refresh data tabel
+            console.log("Berhasil menghapus Jabatan:", res.data);
+            await fetchJabatan(); // refresh data tabel
             setIsOpenDelete(false); // tutup modal
-            toast.success("Role berhasil dihapus 🗑️");
+            toast.success("Jabatan berhasil dihapus 🗑️");
         } catch (error) {
-            console.error("Gagal menghapus Role:", error.response?.data || error.message);
-            toast.error("Gagal menghapus Role ❌");
+            setIsOpenDelete(false); // tutup modal
+            console.error("Gagal menghapus Jabatan:", error.response?.data || error.message);
+            // Ambil pesan error dari controller Laravel
+            const errorMessage =
+                error.response?.data?.message ||
+                "Terjadi kesalahan saat menghapus Jabatan ❌";
+
+            // Tampilkan di toast
+            toast.error(errorMessage);
+
+            // Jika mau, kamu juga bisa tampilkan pesan detail di console untuk debugging:
+            if (error.response?.data?.error) {
+                console.error("Detail error:", error.response.data.error);
+            }
         }
     };
 
-    const openModalDelete = (roles) => {
+    const openModalDelete = (jabatan) => {
         setModalDataDelete({
-            title: `Hapus user "${roles.name}"?`,
-            id: roles.id,
+            title: `Hapus user "${jabatan.name}"?`,
+            id: jabatan.id,
         });
         setIsOpenDelete(true);
     };
-
     return (
         <DashboardPage>
             <h2 className="intro-y text-lg font-medium pt-24">
-                Role Management
+                Jabatan Management
             </h2>
             <div className="grid grid-cols-12 gap-6 mt-5">
                 <div className="intro-y col-span-12 flex flex-wrap sm:flex-nowrap items-center mt-2">
                     <button
-                        onClick={openAddRoleModal}
+                        onClick={openAddJabatanModal}
                         className="btn btn-secondary shadow-md mr-2">
-                        <UserPlus className='pr-1.5' /> New Role
+                        <UserPlus className='pr-1.5' /> New Jabatan
                     </button>
 
                     <div className="hidden md:block mx-auto text-slate-500"></div>
@@ -200,8 +208,7 @@ function RoleManagement() {
                     <table className="table table-report -mt-2">
                         <thead>
                             <tr>
-                                <th className="whitespace-nowrap">NAME</th>
-                                <th className="whitespace-nowrap">GUARD NAME</th>
+                                <th className="whitespace-nowrap">JABATAN</th>
                                 <th className="text-center whitespace-nowrap">ACTIONS</th>
                             </tr>
                         </thead>
@@ -210,35 +217,33 @@ function RoleManagement() {
                                 <tr>
                                     <td colSpan="4" className="text-center py-4">Loading...</td>
                                 </tr>
-                            ) : roles.length > 0 ? (
-                                [...roles]
-                                    .filter((roles) =>
-                                        roles.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
-                                        roles.guard_name.toLowerCase().includes(searchTerm.toLowerCase())
+                            ) : jabatan.length > 0 ? (
+                                [...jabatan]
+                                    .filter((jabatan) =>
+                                        jabatan.n_jabatan.toLowerCase().includes(searchTerm.toLowerCase())
                                     )
                                     .sort((a, b) => new Date(a.created_at) - new Date(b.created_at))
-                                    .map((roles, index) => (
+                                    .map((jabatan, index) => (
                                         <motion.tr
-                                            key={roles.id}
+                                            key={jabatan.id}
                                             whileHover={{ scale: 1.02 }}>
-                                            <td className="w-60">
-                                                <div className="">
-                                                    {roles.name}
-                                                </div>
-                                            </td>
                                             <td>
-                                                {roles.guard_name}
+                                                <span className="font-medium whitespace-nowrap"> {jabatan.n_jabatan}</span>
+                                                <div className="text-slate-500 text-xs whitespace-nowrap mt-0.5">Departement :  {jabatan.departement
+                                                    ? jabatan.departement.n_departement
+                                                    : '-'}</div>
                                             </td>
+
                                             <td className="table-report__action w-56">
                                                 <div className="flex justify-center items-center">
                                                     <button
-                                                        onClick={() => openEditRoleModal(roles)}
+                                                        onClick={() => openEditJabatanModal(jabatan)}
                                                         className="flex items-center mr-3"
                                                     >
                                                         <CheckSquare className="w-4 h-4 mr-1" /> Edit
                                                     </button>
                                                     <button
-                                                        onClick={() => openModalDelete(roles)}
+                                                        onClick={() => openModalDelete(jabatan)}
                                                         className="flex items-center text-danger"
                                                     >
                                                         <Trash2 className="w-4 h-4 mr-1" /> Delete
@@ -299,21 +304,21 @@ function RoleManagement() {
                 isOpen={isOpen}
                 onClose={() => setIsOpen(false)}
                 title={modalData.title}
-                onSave={handleSaveRoles}
+                onSave={handleSaveJabatan}
             >
-                <Inputrole formData={formData} setFormData={setFormData} errors={errors} setErrors={setErrors} />
+                <InputJabatan formData={formData} setFormData={setFormData} errors={errors} setErrors={setErrors} />
             </Modal>
 
             <Modaldelete
                 isOpenDelete={isOpenDelete}
                 onClose={() => setIsOpenDelete(false)}
-                onDelete={handleDeleteRoles}
+                onDelete={handleDeleteJabatan}
                 title={modalDataDelete.title}
             >
                 {modalDataDelete.content}
             </Modaldelete>
-        </DashboardPage >
+        </DashboardPage>
     )
 }
 
-export default RoleManagement
+export default JabatanPage

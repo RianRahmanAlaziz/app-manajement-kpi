@@ -102,7 +102,7 @@ function Sidelink({ icon, title, href = '/', children, cls = '' }) {
                             animate={{ height: 'auto', opacity: 1 }}
                             exit={{ height: 0, opacity: 0 }}
                             transition={{ duration: 0.3, ease: 'easeInOut' }}
-                            className={`overflow-hidden ${baseClass}__sub-open`}
+                            className={`overflow-hidden ${baseClass}__sub-open mb-3`}
                         >
                             {children}
                         </motion.ul>
