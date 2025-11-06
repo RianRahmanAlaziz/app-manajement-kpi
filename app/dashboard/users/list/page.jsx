@@ -2,7 +2,7 @@
 import DashboardPage from '../../page'
 import Image from 'next/image'
 import Tippy from '@tippyjs/react'; // ✅ dari React
-import { CheckSquare, Trash2, ChevronLeft, ChevronsLeft, ChevronRight, ChevronsRight, UserPlus } from 'lucide-react'
+import { CheckSquare, Trash2, ChevronLeft, ChevronsLeft, ChevronRight, ChevronsRight, UserPlus, LoaderCircle } from 'lucide-react'
 import { useState, useEffect } from 'react'
 import axios from 'axios';
 import Modal from '../../../../components/common/Modal';
@@ -13,6 +13,10 @@ import { toast, ToastContainer } from 'react-toastify' // ✅ Tambahkan ini
 import 'react-toastify/dist/ReactToastify.css' // ✅ Import CSS
 
 function PageUsers() {
+    useEffect(() => {
+        document.title = "Dashboard | Sistem Management KPI";
+    }, []);
+
     const [isOpen, setIsOpen] = useState(false);
     const [isOpenDelete, setIsOpenDelete] = useState(false);
     const [users, setUsers] = useState([]);
@@ -215,7 +219,11 @@ function PageUsers() {
                         <tbody>
                             {loading ? (
                                 <tr>
-                                    <td colSpan="4" className="text-center py-4">Loading...</td>
+                                    <td colSpan="4" className="py-6">
+                                        <div className="flex justify-center items-center">
+                                            <LoaderCircle className="w-6 h-6 animate-spin text-gray-500" />
+                                        </div>
+                                    </td>
                                 </tr>
                             ) : users.length > 0 ? (
                                 [...users]

@@ -2,13 +2,13 @@
 import axios from 'axios';
 import { useState, useEffect } from 'react'
 import { motion } from "framer-motion";
-import DashboardPage from '../page';
-import { CheckSquare, Trash2, ChevronLeft, ChevronsLeft, ChevronRight, ChevronsRight, UserPlus } from 'lucide-react'
+import DashboardPage from '../../page';
+import { CheckSquare, Trash2, ChevronLeft, ChevronsLeft, ChevronRight, ChevronsRight, UserPlus, LoaderCircle } from 'lucide-react'
 import { toast } from 'react-toastify'
 import 'react-toastify/dist/ReactToastify.css'
-import Modal from '../../../components/common/Modal';
-import Modaldelete from '../../../components/common/Modaldelete';
-import InputDepartement from '../../../components/pages/departement/InputDepartement';
+import Modal from '../../../../components/common/Modal';
+import Modaldelete from '../../../../components/common/Modaldelete';
+import InputDepartement from '../../../../components/pages/master-data/InputDepartement';
 
 function DepartementPage() {
     const [isOpen, setIsOpen] = useState(false);
@@ -215,7 +215,11 @@ function DepartementPage() {
                         <tbody>
                             {loading ? (
                                 <tr>
-                                    <td colSpan="4" className="text-center py-4">Loading...</td>
+                                    <td colSpan="4" className="py-6">
+                                        <div className="flex justify-center items-center">
+                                            <LoaderCircle className="w-6 h-6 animate-spin text-gray-500" />
+                                        </div>
+                                    </td>
                                 </tr>
                             ) : departement.length > 0 ? (
                                 [...departement]

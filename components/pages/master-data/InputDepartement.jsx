@@ -16,7 +16,7 @@ function InputDepartement({ formData, setFormData, errors, setErrors }) {
 
     return (
         <>
-            <div className="col-span-6 sm:col-span-12">
+            <div className="col-span-12">
                 <label htmlFor="n_departement" className="form-label">Name</label>
                 <input
                     id="n_departement"

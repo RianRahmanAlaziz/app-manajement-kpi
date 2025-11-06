@@ -2,13 +2,13 @@
 import axios from 'axios';
 import { useState, useEffect } from 'react'
 import { motion } from "framer-motion";
-import DashboardPage from '../page';
-import { CheckSquare, Trash2, ChevronLeft, ChevronsLeft, ChevronRight, ChevronsRight, UserPlus } from 'lucide-react'
+import DashboardPage from '../../page';
+import { CheckSquare, Trash2, ChevronLeft, ChevronsLeft, ChevronRight, ChevronsRight, UserPlus, LoaderCircle } from 'lucide-react'
 import { toast } from 'react-toastify'
 import 'react-toastify/dist/ReactToastify.css'
-import Modal from '../../../components/common/Modal';
-import Modaldelete from '../../../components/common/Modaldelete';
-import InputJabatan from '../../../components/pages/jabatan/InputJabatan';
+import Modal from '../../../../components/common/Modal';
+import Modaldelete from '../../../../components/common/Modaldelete';
+import InputJabatan from '../../../../components/pages/master-data/InputJabatan';
 
 
 function JabatanPage() {
@@ -20,6 +20,7 @@ function JabatanPage() {
     const [errors, setErrors] = useState({});
     const [formData, setFormData] = useState({
         n_jabatan: "",
+        departement_id: "",
     });
     const [pagination, setPagination] = useState({
         current_page: 1,
@@ -101,7 +102,7 @@ function JabatanPage() {
 
             await fetchJabatan();
             setIsOpen(false);
-            setFormData({ name: '', guard_name: '' });
+            setFormData({ name: '', departement_id: '' });
             setErrors({});
             // ✅ Toast notifikasi sukses
             if (mode === 'edit') {
@@ -132,7 +133,8 @@ function JabatanPage() {
     // 🔹 Buka modal Edit
     const openEditJabatanModal = (jabatan) => {
         setFormData({
-            n_jabatan: jabatan.n_jabatan || ''
+            n_jabatan: jabatan.n_jabatan || '',
+            departement_id: jabatan?.departement?.id || '',
         });
         setErrors({});
         setModalData({ title: 'Edit Jabatan', mode: 'edit', editId: jabatan.id });
@@ -215,7 +217,11 @@ function JabatanPage() {
                         <tbody>
                             {loading ? (
                                 <tr>
-                                    <td colSpan="4" className="text-center py-4">Loading...</td>
+                                    <td colSpan="4" className="py-6">
+                                        <div className="flex justify-center items-center">
+                                            <LoaderCircle className="w-6 h-6 animate-spin text-gray-500" />
+                                        </div>
+                                    </td>
                                 </tr>
                             ) : jabatan.length > 0 ? (
                                 [...jabatan]

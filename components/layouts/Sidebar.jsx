@@ -1,7 +1,7 @@
 "use client";
 import React from 'react'
 import Sidelink from '../common/Sidelink'
-import { Users, LayoutDashboard, UserCog, SquareUser, BriefcaseBusiness, Folders, Building2, FolderKey } from 'lucide-react'
+import { Users, LayoutDashboard, UserCog, SquareUser, BriefcaseBusiness, Folders, Building2, FolderKey, MonitorCog, Layers, NotebookText, Weight } from 'lucide-react'
 
 function Sidebar() {
     return (
@@ -38,20 +38,42 @@ function Sidebar() {
                     />
                 </Sidelink>
                 <Sidelink
-                    title="Master Data"
+                    title="Master Data SDM"
                     icon={
                         <Folders />
                     }
                 >
                     <Sidelink
-                        title="Master Departement"
-                        href="/dashboard/departement"
+                        title="Departement Management"
+                        href="/dashboard/master-data/departement"
                         icon={<Building2 />}
                     />
                     <Sidelink
-                        title="Master Jabatan"
-                        href="/dashboard/jabatan"
+                        title="Jabatan Management"
+                        href="/dashboard/master-data/jabatan"
                         icon={<BriefcaseBusiness />}
+                    />
+                </Sidelink>
+                <Sidelink
+                    title="KPI Management"
+                    icon={
+                        <MonitorCog />
+                    }
+                >
+                    <Sidelink
+                        title="Category Management"
+                        href="/dashboard/kpi/category-management"
+                        icon={<Layers />}
+                    />
+                    <Sidelink
+                        title="Indicator Management"
+                        href="/dashboard/kpi/indicator-management"
+                        icon={<NotebookText />}
+                    />
+                    <Sidelink
+                        title="Bobot Management"
+                        href="/dashboard/kpi/bobot-management"
+                        icon={<Weight />}
                     />
                 </Sidelink>
             </ul>

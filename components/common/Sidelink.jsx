@@ -57,9 +57,20 @@ function Sidelink({ icon, title, href = '/', children, cls = '' }) {
     const handleClick = (e) => {
         if (hasChildren) {
             e.preventDefault(); // jangan redirect jika punya child
+            window.dispatchEvent(new CustomEvent('closeAllSidelinks', { detail: title }));
             setIsOpen(!isOpen); // toggle
         }
     };
+    // 🔒 Tutup otomatis jika event global dipicu oleh menu lain
+    useEffect(() => {
+        const handleCloseAll = (e) => {
+            if (e.detail !== title) {
+                setIsOpen(false);
+            }
+        };
+        window.addEventListener('closeAllSidelinks', handleCloseAll);
+        return () => window.removeEventListener('closeAllSidelinks', handleCloseAll);
+    }, [title]);
 
     const isCollapsed = !isMobile &&
         typeof window !== 'undefined' &&

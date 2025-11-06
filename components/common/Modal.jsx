@@ -19,13 +19,13 @@ function Modal({ isOpen, onClose, title, children, onSave }) {
                 initial={{ opacity: 0 }}
                 animate={{ opacity: 1 }}
                 exit={{ opacity: 0 }}
-                className="fixed inset-0 z-[9999] pt-32 flex items-start justify-center bg-black/50">
+                className="fixed inset-0 z-[9999] pt-32 flex items-start justify-center bg-black/50 ">
                 <motion.div
                     initial={{ opacity: 0, scale: 0 }}
                     animate={{ opacity: 1, scale: 1 }}
                     exit={{ opacity: 0, scale: 0 }}
                     transition={{ duration: 0.3, ease: "easeInOut" }}
-                    className="bg-white dark:bg-darkmode-600 rounded-lg shadow-lg p-6 w-4xl">
+                    className="bg-white dark:bg-darkmode-600 rounded-lg shadow-lg p-6 w-3xl">
                     <h3 className="text-lg font-bold">{title}</h3>
                     <div className="my-5 grid grid-cols-12 gap-4 gap-y-3">
                         {children}

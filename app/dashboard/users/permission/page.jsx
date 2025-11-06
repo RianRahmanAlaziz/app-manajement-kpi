@@ -4,11 +4,11 @@ import { useState, useEffect } from 'react'
 import { motion } from "framer-motion";
 import DashboardPage from '../../page';
 import Modal from '../../../../components/common/Modal';
-import { CheckSquare, Trash2, ChevronLeft, ChevronsLeft, ChevronRight, ChevronsRight, UserPlus } from 'lucide-react'
+import { CheckSquare, Trash2, ChevronLeft, ChevronsLeft, ChevronRight, ChevronsRight, UserPlus, LoaderCircle } from 'lucide-react'
 import { toast } from 'react-toastify'
 import 'react-toastify/dist/ReactToastify.css' // ✅ Import CSS
 import Modaldelete from '../../../../components/common/Modaldelete';
-import InputPermissions from '../../../../components/pages/permission/InputPermissions';
+import InputPermissions from '../../../../components/pages/users/InputPermissions';
 
 function PermissionManagement() {
     const [isOpen, setIsOpen] = useState(false);
@@ -219,7 +219,11 @@ function PermissionManagement() {
                         <tbody>
                             {loading ? (
                                 <tr>
-                                    <td colSpan="4" className="text-center py-4">Loading...</td>
+                                    <td colSpan="4" className="py-6">
+                                        <div className="flex justify-center items-center">
+                                            <LoaderCircle className="w-6 h-6 animate-spin text-gray-500" />
+                                        </div>
+                                    </td>
                                 </tr>
                             ) : permissions.length > 0 ? (
                                 [...permissions]

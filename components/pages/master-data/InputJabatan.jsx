@@ -45,20 +45,6 @@ function InputJabatan({ formData, setFormData, errors, setErrors }) {
         label: dept.n_departement,
     }));
 
-    // 🔹 Handle perubahan pada react-select
-    const handleDepartementChange = (selectedOption) => {
-        setFormData({
-            ...formData,
-            departement_id: selectedOption ? selectedOption.value : '',
-        });
-
-        if (errors && errors.departement_id) {
-            setErrors({
-                ...errors,
-                departement_id: undefined,
-            });
-        }
-    };
 
     return (
         <>
@@ -87,7 +73,7 @@ function InputJabatan({ formData, setFormData, errors, setErrors }) {
                     options={DepartementOptions}
                     placeholder={loading ? "Memuat data Departement..." : "Pilih Departement"}
                     value={DepartementOptions.find((opt) => opt.value === formData.departement_id) || null}
-                    onChange={handleDepartementChange}
+                    onChange={(selected) => handleChange({ target: { name: "departement_id", value: selected?.value } })}
                     isSearchable={false}
                     isLoading={loading}     // ⬅️ Aktifkan spinner bawaan react-select
                     isDisabled={loading}
