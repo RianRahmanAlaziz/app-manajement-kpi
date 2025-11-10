@@ -19832,6 +19832,10 @@ html body {
     padding-top: 5rem;
   }
 
+  .sm\:pt-24 {
+    padding-top: 6rem;
+  }
+
   .sm\:pb-0 {
     padding-bottom: 0px;
   }

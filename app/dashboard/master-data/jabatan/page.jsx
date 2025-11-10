@@ -2,7 +2,6 @@
 import axios from 'axios';
 import { useState, useEffect } from 'react'
 import { motion } from "framer-motion";
-import DashboardPage from '../../page';
 import { CheckSquare, Trash2, ChevronLeft, ChevronsLeft, ChevronRight, ChevronsRight, UserPlus, LoaderCircle } from 'lucide-react'
 import { toast } from 'react-toastify'
 import 'react-toastify/dist/ReactToastify.css'
@@ -12,6 +11,9 @@ import InputJabatan from '../../../../components/pages/master-data/InputJabatan'
 
 
 function JabatanPage() {
+    useEffect(() => {
+        document.title = "Dashboard | Jabatan Management";
+    }, []);
     const [isOpen, setIsOpen] = useState(false);
     const [isOpenDelete, setIsOpenDelete] = useState(false);
     const [jabatan, setJabatan] = useState([]);
@@ -180,7 +182,7 @@ function JabatanPage() {
         setIsOpenDelete(true);
     };
     return (
-        <DashboardPage>
+        <>
             <h2 className="intro-y text-lg font-medium pt-24">
                 Jabatan Management
             </h2>
@@ -323,7 +325,7 @@ function JabatanPage() {
             >
                 {modalDataDelete.content}
             </Modaldelete>
-        </DashboardPage>
+        </>
     )
 }
 

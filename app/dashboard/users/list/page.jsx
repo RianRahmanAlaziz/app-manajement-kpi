@@ -1,5 +1,4 @@
 'use client';
-import DashboardPage from '../../page'
 import Image from 'next/image'
 import Tippy from '@tippyjs/react'; // ✅ dari React
 import { CheckSquare, Trash2, ChevronLeft, ChevronsLeft, ChevronRight, ChevronsRight, UserPlus, LoaderCircle } from 'lucide-react'
@@ -11,10 +10,11 @@ import Adduser from '../../../../components/pages/users/Adduser';
 import Modaldelete from '../../../../components/common/Modaldelete';
 import { toast, ToastContainer } from 'react-toastify' // ✅ Tambahkan ini
 import 'react-toastify/dist/ReactToastify.css' // ✅ Import CSS
+import DashboardLayout from '../../layout';
 
 function PageUsers() {
     useEffect(() => {
-        document.title = "Dashboard | Sistem Management KPI";
+        document.title = "Dashboard | Users Management";
     }, []);
 
     const [isOpen, setIsOpen] = useState(false);
@@ -179,7 +179,7 @@ function PageUsers() {
     };
 
     return (
-        <DashboardPage>
+        <>
             <h2 className="intro-y text-lg font-medium pt-24">
                 Users List
             </h2>
@@ -347,7 +347,7 @@ function PageUsers() {
             >
                 {modalDataDelete.content}
             </Modaldelete>
-        </DashboardPage >
+        </>
     )
 }
 

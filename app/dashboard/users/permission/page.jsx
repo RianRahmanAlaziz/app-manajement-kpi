@@ -2,7 +2,6 @@
 import axios from 'axios';
 import { useState, useEffect } from 'react'
 import { motion } from "framer-motion";
-import DashboardPage from '../../page';
 import Modal from '../../../../components/common/Modal';
 import { CheckSquare, Trash2, ChevronLeft, ChevronsLeft, ChevronRight, ChevronsRight, UserPlus, LoaderCircle } from 'lucide-react'
 import { toast } from 'react-toastify'
@@ -11,6 +10,9 @@ import Modaldelete from '../../../../components/common/Modaldelete';
 import InputPermissions from '../../../../components/pages/users/InputPermissions';
 
 function PermissionManagement() {
+    useEffect(() => {
+        document.title = "Dashboard | Permission Management";
+    }, []);
     const [isOpen, setIsOpen] = useState(false);
     const [isOpenDelete, setIsOpenDelete] = useState(false);
     const [permissions, setPermissions] = useState([]);
@@ -181,7 +183,7 @@ function PermissionManagement() {
     };
 
     return (
-        <DashboardPage>
+        <>
             <h2 className="intro-y text-lg font-medium pt-24">
                 Permission Management
             </h2>
@@ -327,7 +329,7 @@ function PermissionManagement() {
             >
                 {modalDataDelete.content}
             </Modaldelete>
-        </DashboardPage >
+        </>
     )
 }
 

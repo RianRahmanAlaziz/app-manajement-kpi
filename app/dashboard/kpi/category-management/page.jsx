@@ -7,20 +7,21 @@ import { toast } from 'react-toastify'
 import 'react-toastify/dist/ReactToastify.css'
 import Modal from '../../../../components/common/Modal';
 import Modaldelete from '../../../../components/common/Modaldelete';
-import InputDepartement from '../../../../components/pages/master-data/InputDepartement';
+import InputCategory from '../../../../components/pages/kpi/InputCategory';
 
-function DepartementPage() {
+function CategoryPage() {
     useEffect(() => {
-        document.title = "Dashboard | Departement Management";
+        document.title = "Dashboard | Category Management";
     }, []);
     const [isOpen, setIsOpen] = useState(false);
     const [isOpenDelete, setIsOpenDelete] = useState(false);
-    const [departement, setDepartement] = useState([]);
+    const [category, setCategory] = useState([]);
     const [loading, setLoading] = useState(true);
     const [searchTerm, setSearchTerm] = useState('');
     const [errors, setErrors] = useState({});
     const [formData, setFormData] = useState({
-        n_departement: "",
+        name: "",
+        description: "",
     });
     const [pagination, setPagination] = useState({
         current_page: 1,
@@ -38,18 +39,17 @@ function DepartementPage() {
     const [modalDataDelete, setModalDataDelete] = useState({
         title: '',
     });
-
     const token = typeof window !== "undefined" ? localStorage.getItem("token") : null;
-    const fetchDepartement = async (page = 1, search = '') => {
+    const fetchCategory = async (page = 1, search = '') => {
         try {
-            const res = await axios.get(`http://127.0.0.1:8000/api/departement?page=${page}&search=${search}`, {
+            const res = await axios.get(`http://127.0.0.1:8000/api/kpi-category?page=${page}&search=${search}`, {
                 headers: {
                     Authorization: `Bearer ${token}`,
                     Accept: "application/json"
                 }
             });
             const paginated = res.data.data;
-            setDepartement(paginated.data);
+            setCategory(paginated.data);
             setPagination({
                 current_page: paginated.current_page,
                 last_page: paginated.last_page,
@@ -57,8 +57,8 @@ function DepartementPage() {
                 total: paginated.total
             });
         } catch (error) {
-            console.error("Gagal mengambil data Departement:", error);
-            toast.error("Gagal mengambil data Departement 😞");
+            console.error("Gagal mengambil data Category:", error);
+            toast.error("Gagal mengambil data Category 😞");
         } finally {
             setLoading(false);
         }
@@ -66,7 +66,7 @@ function DepartementPage() {
     useEffect(() => {
         if (searchTerm.trim() !== '') setLoading(true);
         const timeout = setTimeout(() => {
-            fetchDepartement(searchTerm);
+            fetchCategory(searchTerm);
         }, 500);
         return () => clearTimeout(timeout);
     }, [searchTerm]);
@@ -75,18 +75,19 @@ function DepartementPage() {
     const handlePageChange = (page) => {
         if (page < 1 || page > pagination.last_page) return;
         setLoading(true);
-        fetchDepartement(page, searchTerm);
+        fetchCategory(page, searchTerm);
     };
-    // 🔹 Tambah atau edit Departement
-    const handleSaveDepartement = async () => {
+
+    // 🔹 Tambah atau edit Category
+    const handleSaveCategory = async () => {
         const { mode, editId } = modalData;
         console.log('FINAL FORM DATA:', formData);
 
         try {
             const url =
                 mode === 'edit'
-                    ? `http://127.0.0.1:8000/api/departement/${editId}`
-                    : 'http://127.0.0.1:8000/api/departement';
+                    ? `http://127.0.0.1:8000/api/kpi-category/${editId}`
+                    : 'http://127.0.0.1:8000/api/kpi-category';
 
             const method = mode === 'edit' ? 'put' : 'post';
 
@@ -100,15 +101,15 @@ function DepartementPage() {
                 },
             });
 
-            await fetchDepartement();
+            await fetchCategory();
             setIsOpen(false);
-            setFormData({ n_departement: '' });
+            setFormData({ name: '' });
             setErrors({});
             // ✅ Toast notifikasi sukses
             if (mode === 'edit') {
-                toast.info("Departement berhasil diperbarui");
+                toast.info("Category berhasil diperbarui");
             } else {
-                toast.success("Departement berhasil ditambahkan");
+                toast.success("Category berhasil ditambahkan");
             }
         } catch (error) {
             console.error("❌ Error response:", error.response?.data);
@@ -117,49 +118,50 @@ function DepartementPage() {
                 // ✅ Ambil pesan error validasi dari Laravel
                 setErrors(error.response.data.errors || {});
             } else {
-                toast.error(mode === 'edit' ? "Gagal memperbarui Departement ⚠️" : "Gagal menambahkan Departement 🚫");
+                toast.error(mode === 'edit' ? "Gagal memperbarui Category ⚠️" : "Gagal menambahkan Category 🚫");
             }
         }
     };
 
     // 🔹 Buka modal Add
-    const openAddDepartementModal = () => {
-        setFormData({ n_departement: '' });
+    const openAddCategoryModal = () => {
+        setFormData({ name: '', description: '' });
         setErrors({});
-        setModalData({ title: 'Add New Departement', mode: 'add', editId: null });
+        setModalData({ title: 'Add New Category', mode: 'add', editId: null });
         setIsOpen(true);
     };
 
     // 🔹 Buka modal Edit
-    const openEditDepartementModal = (departement) => {
+    const openEditCategoryModal = (category) => {
         setFormData({
-            n_departement: departement.n_departement || ''
+            name: category.name || '',
+            description: category.description || '',
         });
         setErrors({});
-        setModalData({ title: 'Edit Departement', mode: 'edit', editId: departement.id });
+        setModalData({ title: 'Edit Category', mode: 'edit', editId: category.id });
         setIsOpen(true);
     };
 
-    const handleDeleteDepartement = async () => {
+    const handleDeleteCategory = async () => {
         try {
-            const res = await axios.delete(`http://127.0.0.1:8000/api/departement/${modalDataDelete.id}`, {
+            const res = await axios.delete(`http://127.0.0.1:8000/api/kpi-category/${modalDataDelete.id}`, {
                 headers: {
                     Authorization: `Bearer ${token}`,
                     Accept: "application/json",
                 },
             });
 
-            console.log("Berhasil menghapus Departement:", res.data);
-            await fetchDepartement(); // refresh data tabel
+            console.log("Berhasil menghapus Category:", res.data);
+            await fetchCategory(); // refresh data tabel
             setIsOpenDelete(false); // tutup modal
-            toast.success("Departement berhasil dihapus 🗑️");
+            toast.success("Category berhasil dihapus 🗑️");
         } catch (error) {
             setIsOpenDelete(false); // tutup modal
-            console.error("Gagal menghapus Departement:", error.response?.data || error.message);
+            console.error("Gagal menghapus Category:", error.response?.data || error.message);
             // Ambil pesan error dari controller Laravel
             const errorMessage =
                 error.response?.data?.message ||
-                "Terjadi kesalahan saat menghapus Departement ❌";
+                "Terjadi kesalahan saat menghapus Category ❌";
 
             // Tampilkan di toast
             toast.error(errorMessage);
@@ -171,10 +173,10 @@ function DepartementPage() {
         }
     };
 
-    const openModalDelete = (departement) => {
+    const openModalDelete = (category) => {
         setModalDataDelete({
-            title: `Hapus user "${departement.name}"?`,
-            id: departement.id,
+            title: `Hapus user "${category.name}"?`,
+            id: category.id,
         });
         setIsOpenDelete(true);
     };
@@ -182,14 +184,14 @@ function DepartementPage() {
     return (
         <>
             <h2 className="intro-y text-lg font-medium pt-24">
-                Departement Management
+                Category Management
             </h2>
             <div className="grid grid-cols-12 gap-6 mt-5">
                 <div className="intro-y col-span-12 flex flex-wrap sm:flex-nowrap items-center mt-2">
                     <button
-                        onClick={openAddDepartementModal}
+                        onClick={openAddCategoryModal}
                         className="btn btn-secondary shadow-md mr-2">
-                        <UserPlus className='pr-1.5' /> New Departement
+                        <UserPlus className='pr-1.5' /> New Category
                     </button>
 
                     <div className="hidden md:block mx-auto text-slate-500"></div>
@@ -211,6 +213,7 @@ function DepartementPage() {
                         <thead>
                             <tr>
                                 <th className="whitespace-nowrap">NAME</th>
+                                <th className="whitespace-nowrap">DESCRIPTION</th>
                                 <th className="text-center whitespace-nowrap">ACTIONS</th>
                             </tr>
                         </thead>
@@ -223,31 +226,36 @@ function DepartementPage() {
                                         </div>
                                     </td>
                                 </tr>
-                            ) : departement.length > 0 ? (
-                                [...departement]
-                                    .filter((departement) =>
-                                        departement.n_departement.toLowerCase().includes(searchTerm.toLowerCase())
+                            ) : category.length > 0 ? (
+                                [...category]
+                                    .filter((category) =>
+                                        category.name.toLowerCase().includes(searchTerm.toLowerCase())
                                     )
                                     .sort((a, b) => new Date(a.created_at) - new Date(b.created_at))
-                                    .map((departement, index) => (
+                                    .map((category, index) => (
                                         <motion.tr
-                                            key={departement.id}
+                                            key={category.id}
                                             whileHover={{ scale: 1.02 }}>
                                             <td className="w-60">
                                                 <div className="">
-                                                    {departement.n_departement}
+                                                    {category.name}
+                                                </div>
+                                            </td>
+                                            <td className="w-60">
+                                                <div className="">
+                                                    {category.description}
                                                 </div>
                                             </td>
                                             <td className="table-report__action w-56">
                                                 <div className="flex justify-center items-center">
                                                     <button
-                                                        onClick={() => openEditDepartementModal(departement)}
+                                                        onClick={() => openEditCategoryModal(category)}
                                                         className="flex items-center mr-3"
                                                     >
                                                         <CheckSquare className="w-4 h-4 mr-1" /> Edit
                                                     </button>
                                                     <button
-                                                        onClick={() => openModalDelete(departement)}
+                                                        onClick={() => openModalDelete(category)}
                                                         className="flex items-center text-danger"
                                                     >
                                                         <Trash2 className="w-4 h-4 mr-1" /> Delete
@@ -258,7 +266,7 @@ function DepartementPage() {
                                     ))
                             ) : (
                                 <tr>
-                                    <td colSpan="4" className="text-center py-4">Tidak ada Data</td>
+                                    <td colSpan="3" className="text-center py-4">Tidak ada Data</td>
                                 </tr>
                             )}
                         </tbody>
@@ -308,15 +316,15 @@ function DepartementPage() {
                 isOpen={isOpen}
                 onClose={() => setIsOpen(false)}
                 title={modalData.title}
-                onSave={handleSaveDepartement}
+                onSave={handleSaveCategory}
             >
-                <InputDepartement formData={formData} setFormData={setFormData} errors={errors} setErrors={setErrors} />
+                <InputCategory formData={formData} setFormData={setFormData} errors={errors} setErrors={setErrors} />
             </Modal>
 
             <Modaldelete
                 isOpenDelete={isOpenDelete}
                 onClose={() => setIsOpenDelete(false)}
-                onDelete={handleDeleteDepartement}
+                onDelete={handleDeleteCategory}
                 title={modalDataDelete.title}
             >
                 {modalDataDelete.content}
@@ -325,4 +333,4 @@ function DepartementPage() {
     )
 }
 
-export default DepartementPage
+export default CategoryPage

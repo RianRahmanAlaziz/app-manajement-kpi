@@ -2,7 +2,6 @@
 import axios from 'axios';
 import { useState, useEffect } from 'react'
 import { motion } from "framer-motion";
-import DashboardPage from '../../page';
 import Modal from '../../../../components/common/Modal';
 import { CheckSquare, Trash2, ChevronLeft, ChevronsLeft, ChevronRight, ChevronsRight, UserPlus, LoaderCircle } from 'lucide-react'
 import Inputrole from '../../../../components/pages/users/Inputrole';
@@ -11,6 +10,9 @@ import 'react-toastify/dist/ReactToastify.css' // ✅ Import CSS
 import Modaldelete from '../../../../components/common/Modaldelete';
 
 function RoleManagement() {
+    useEffect(() => {
+        document.title = "Dashboard | Role Management";
+    }, []);
     const [isOpen, setIsOpen] = useState(false);
     const [isOpenDelete, setIsOpenDelete] = useState(false);
     const [roles, setroles] = useState([]);
@@ -184,7 +186,7 @@ function RoleManagement() {
     };
 
     return (
-        <DashboardPage>
+        <>
             <h2 className="intro-y text-lg font-medium pt-24">
                 Role Management
             </h2>
@@ -336,7 +338,7 @@ function RoleManagement() {
             >
                 {modalDataDelete.content}
             </Modaldelete>
-        </DashboardPage >
+        </>
     )
 }
 
