@@ -10,33 +10,38 @@ function LoginPage() {
     const [email, setEmail] = useState('');
     const [password, setPassword] = useState('');
     const [error, setError] = useState('');
+    const [rememberMe, setRememberMe] = useState(false);
+    const API_URL = process.env.NEXT_PUBLIC_API_URL;
+
     // ✅ Cek apakah sudah login
     useEffect(() => {
-        const token = localStorage.getItem('token');
+        document.title = "Login | Sistem Management KPI";
+        const token = localStorage.getItem('token') || sessionStorage.getItem('token');
         if (token) {
             toast.info('Anda sudah login.');
             router.push('/dashboard');
         }
     }, [router]);
+
     const handleLogin = async (e) => {
         e.preventDefault();
 
         try {
-            const res = await fetch('http://127.0.0.1:8000/api/auth/login', {
+            const res = await fetch(`${API_URL}/auth/login`, {
                 method: 'POST',
                 headers: { 'Content-Type': 'application/json' },
                 body: JSON.stringify({ email, password }),
             });
-
-
             const text = await res.text();
-            console.log('Raw response:', text);
             const data = JSON.parse(text);
 
             if (res.ok) {
                 toast.success('Login berhasil!');
-                localStorage.setItem('token', data.access_token);
-
+                if (rememberMe) {
+                    localStorage.setItem('token', data.access_token);
+                } else {
+                    sessionStorage.setItem('token', data.access_token);
+                }
                 // Tunggu sedikit biar toast tampil dulu
                 setTimeout(() => {
                     router.push('/dashboard');
@@ -84,10 +89,15 @@ function LoginPage() {
                                 </div>
                                 <div className="intro-x flex text-slate-600 dark:text-slate-500 text-xs sm:text-sm mt-4">
                                     <div className="flex items-center mr-auto">
-                                        <input id="remember-me" type="checkbox" className="form-check-input border mr-2" />
+                                        <input
+                                            id="remember-me"
+                                            type="checkbox"
+                                            checked={rememberMe}
+                                            onChange={(e) => setRememberMe(e.target.checked)}
+                                            className="form-check-input border mr-2"
+                                        />
                                         <label className="cursor-pointer select-none" htmlFor="remember-me">Remember me</label>
                                     </div>
-                                    <a href="">Forgot Password?</a>
                                 </div>
                                 <div className="intro-x mt-5 xl:mt-8 text-center xl:text-left">
                                     <button type="submit" className="btn btn-primary py-3 px-4 w-full xl:w-32 xl:mr-3 align-top">Login</button>

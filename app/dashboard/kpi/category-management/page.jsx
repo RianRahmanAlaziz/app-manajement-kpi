@@ -1,185 +1,50 @@
 'use client';
-import axios from 'axios';
-import { useState, useEffect } from 'react'
-import { motion } from "framer-motion";
-import { CheckSquare, Trash2, ChevronLeft, ChevronsLeft, ChevronRight, ChevronsRight, UserPlus, LoaderCircle } from 'lucide-react'
-import { toast } from 'react-toastify'
-import 'react-toastify/dist/ReactToastify.css'
+import { useEffect } from 'react';
+import { motion } from 'framer-motion';
+import {
+    CheckSquare,
+    Trash2,
+    UserPlus,
+    LoaderCircle,
+    ChevronLeft,
+    ChevronRight,
+    ChevronsLeft,
+    ChevronsRight,
+} from 'lucide-react';
 import Modal from '../../../../components/common/Modal';
 import Modaldelete from '../../../../components/common/Modaldelete';
 import InputCategory from '../../../../components/pages/kpi/InputCategory';
+import useCategory from '../../../../components/hooks/kpi/useCategory';
 
 function CategoryPage() {
+
+    const {
+        isOpen,
+        isOpenDelete,
+        category,
+        loading,
+        searchTerm,
+        setSearchTerm,
+        pagination,
+        modalData,
+        modalDataDelete,
+        formData,
+        setFormData,
+        errors,
+        setErrors,
+        setIsOpen,
+        setIsOpenDelete,
+        handlePageChange,
+        handleSaveCategory,
+        openAddCategoryModal,
+        openEditCategoryModal,
+        openModalDelete,
+        handleDeleteCategory,
+    } = useCategory();
+
     useEffect(() => {
-        document.title = "Dashboard | Category Management";
+        document.title = 'Dashboard | Category Management';
     }, []);
-    const [isOpen, setIsOpen] = useState(false);
-    const [isOpenDelete, setIsOpenDelete] = useState(false);
-    const [category, setCategory] = useState([]);
-    const [loading, setLoading] = useState(true);
-    const [searchTerm, setSearchTerm] = useState('');
-    const [errors, setErrors] = useState({});
-    const [formData, setFormData] = useState({
-        name: "",
-        description: "",
-    });
-    const [pagination, setPagination] = useState({
-        current_page: 1,
-        last_page: 1,
-        per_page: 10,
-        total: 0
-    });
-
-    const [modalData, setModalData] = useState({
-        title: '',
-        mode: 'add', // 'add' | 'edit'
-        editId: null, // id Permissions kalau edit
-    });
-
-    const [modalDataDelete, setModalDataDelete] = useState({
-        title: '',
-    });
-    const token = typeof window !== "undefined" ? localStorage.getItem("token") : null;
-    const fetchCategory = async (page = 1, search = '') => {
-        try {
-            const res = await axios.get(`http://127.0.0.1:8000/api/kpi-category?page=${page}&search=${search}`, {
-                headers: {
-                    Authorization: `Bearer ${token}`,
-                    Accept: "application/json"
-                }
-            });
-            const paginated = res.data.data;
-            setCategory(paginated.data);
-            setPagination({
-                current_page: paginated.current_page,
-                last_page: paginated.last_page,
-                per_page: paginated.per_page,
-                total: paginated.total
-            });
-        } catch (error) {
-            console.error("Gagal mengambil data Category:", error);
-            toast.error("Gagal mengambil data Category 😞");
-        } finally {
-            setLoading(false);
-        }
-    };
-    useEffect(() => {
-        if (searchTerm.trim() !== '') setLoading(true);
-        const timeout = setTimeout(() => {
-            fetchCategory(searchTerm);
-        }, 500);
-        return () => clearTimeout(timeout);
-    }, [searchTerm]);
-
-    // 🔹 navigasi pagination
-    const handlePageChange = (page) => {
-        if (page < 1 || page > pagination.last_page) return;
-        setLoading(true);
-        fetchCategory(page, searchTerm);
-    };
-
-    // 🔹 Tambah atau edit Category
-    const handleSaveCategory = async () => {
-        const { mode, editId } = modalData;
-        console.log('FINAL FORM DATA:', formData);
-
-        try {
-            const url =
-                mode === 'edit'
-                    ? `http://127.0.0.1:8000/api/kpi-category/${editId}`
-                    : 'http://127.0.0.1:8000/api/kpi-category';
-
-            const method = mode === 'edit' ? 'put' : 'post';
-
-            await axios({
-                method,
-                url,
-                data: formData,
-                headers: {
-                    Authorization: `Bearer ${token}`,
-                    Accept: 'application/json',
-                },
-            });
-
-            await fetchCategory();
-            setIsOpen(false);
-            setFormData({ name: '' });
-            setErrors({});
-            // ✅ Toast notifikasi sukses
-            if (mode === 'edit') {
-                toast.info("Category berhasil diperbarui");
-            } else {
-                toast.success("Category berhasil ditambahkan");
-            }
-        } catch (error) {
-            console.error("❌ Error response:", error.response?.data);
-
-            if (error.response?.status === 422) {
-                // ✅ Ambil pesan error validasi dari Laravel
-                setErrors(error.response.data.errors || {});
-            } else {
-                toast.error(mode === 'edit' ? "Gagal memperbarui Category ⚠️" : "Gagal menambahkan Category 🚫");
-            }
-        }
-    };
-
-    // 🔹 Buka modal Add
-    const openAddCategoryModal = () => {
-        setFormData({ name: '', description: '' });
-        setErrors({});
-        setModalData({ title: 'Add New Category', mode: 'add', editId: null });
-        setIsOpen(true);
-    };
-
-    // 🔹 Buka modal Edit
-    const openEditCategoryModal = (category) => {
-        setFormData({
-            name: category.name || '',
-            description: category.description || '',
-        });
-        setErrors({});
-        setModalData({ title: 'Edit Category', mode: 'edit', editId: category.id });
-        setIsOpen(true);
-    };
-
-    const handleDeleteCategory = async () => {
-        try {
-            const res = await axios.delete(`http://127.0.0.1:8000/api/kpi-category/${modalDataDelete.id}`, {
-                headers: {
-                    Authorization: `Bearer ${token}`,
-                    Accept: "application/json",
-                },
-            });
-
-            console.log("Berhasil menghapus Category:", res.data);
-            await fetchCategory(); // refresh data tabel
-            setIsOpenDelete(false); // tutup modal
-            toast.success("Category berhasil dihapus 🗑️");
-        } catch (error) {
-            setIsOpenDelete(false); // tutup modal
-            console.error("Gagal menghapus Category:", error.response?.data || error.message);
-            // Ambil pesan error dari controller Laravel
-            const errorMessage =
-                error.response?.data?.message ||
-                "Terjadi kesalahan saat menghapus Category ❌";
-
-            // Tampilkan di toast
-            toast.error(errorMessage);
-
-            // Jika mau, kamu juga bisa tampilkan pesan detail di console untuk debugging:
-            if (error.response?.data?.error) {
-                console.error("Detail error:", error.response.data.error);
-            }
-        }
-    };
-
-    const openModalDelete = (category) => {
-        setModalDataDelete({
-            title: `Hapus user "${category.name}"?`,
-            id: category.id,
-        });
-        setIsOpenDelete(true);
-    };
 
     return (
         <>

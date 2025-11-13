@@ -1,30 +1,28 @@
 import React, { useEffect, useState } from 'react'
-import axios from 'axios'
+import axiosInstance from '@/lib/axiosInstance';
 import Select from "react-select";
 
-function Adduser({ formData, setFormData }) {
+function Adduser({ formData, setFormData, errors, setErrors }) {
     const [roles, setRoles] = useState([])
     const [loading, setLoading] = useState(true)
 
     const handleChange = (e) => {
-        const { name, value } = e.target;
-
-        setFormData(prev => ({
-            ...prev,
-            [name]: value,
-        }));
+        setFormData({
+            ...formData,
+            [e.target.name]: e.target.value,
+        });
+        if (errors && errors[e.target.name]) {
+            setErrors({
+                ...errors,
+                [e.target.name]: undefined,
+            });
+        }
     };
 
     useEffect(() => {
         const fetchRoles = async () => {
             try {
-                const token = localStorage.getItem("token")
-                const res = await axios.get("http://127.0.0.1:8000/api/roles", {
-                    headers: {
-                        Authorization: `Bearer ${token}`,
-                        Accept: "application/json",
-                    },
-                })
+                const res = await axiosInstance.get(`/roles`);
                 setRoles(res.data.data.data)
             } catch (error) {
                 console.error("Gagal memuat role:", error)
@@ -55,7 +53,11 @@ function Adduser({ formData, setFormData }) {
                     className="form-control"
                     placeholder="Name"
                     required
+                    autoFocus
                 />
+                {errors?.name && (
+                    <small className="text-danger">{errors.name[0]}</small>
+                )}
             </div>
             <div className="col-span-6 sm:col-span-12">
                 <label htmlFor="email" className="form-label">Email</label>
@@ -69,6 +71,9 @@ function Adduser({ formData, setFormData }) {
                     placeholder="example@gmail.com"
                     required
                 />
+                {errors?.email && (
+                    <small className="text-danger">{errors.email[0]}</small>
+                )}
             </div>
             <div className="col-span-6 sm:col-span-12">
                 <label htmlFor="roles" className="form-label">Role</label>

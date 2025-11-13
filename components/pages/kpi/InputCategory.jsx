@@ -26,6 +26,7 @@ function InputCategory({ formData, setFormData, errors, setErrors }) {
                     className="form-control"
                     placeholder="Name"
                     required
+                    autoFocus
                 />
                 {errors?.name && (
                     <small className="text-danger">{errors.name[0]}</small>

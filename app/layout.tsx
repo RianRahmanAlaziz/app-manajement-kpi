@@ -3,6 +3,7 @@ import { Inter } from 'next/font/google';
 import "./globals.css";
 import { ToastContainer } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
+import RouteLoader from "@/components/layouts/RouteLoader";
 
 const inter = Inter({ subsets: ['latin'] })
 
@@ -22,6 +23,7 @@ export default function RootLayout({
       className={`${inter.className} light`}
     >
       <body>
+        <RouteLoader />
         {children}
         <ToastContainer
           position="top-right"

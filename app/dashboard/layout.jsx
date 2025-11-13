@@ -14,31 +14,41 @@ import Menumobile from "../../components/layouts/Menumobile";
 export default function DashboardLayout({ children }) {
 
     const router = useRouter();
-
     useEffect(() => {
-        const token = localStorage.getItem('token');
+        // ✅ Ambil token dari localStorage atau sessionStorage
+        const token = localStorage.getItem('token') || sessionStorage.getItem('token');
+
         if (!token) {
             toast.error('Silakan login terlebih dahulu!');
             router.push('/login');
             return;
         }
 
-        // Fungsi untuk refresh token
+        // ✅ Fungsi untuk refresh token
         const refreshToken = async () => {
             try {
                 const res = await fetch('http://127.0.0.1:8000/api/auth/refresh', {
                     method: 'POST',
                     headers: {
                         Authorization: `Bearer ${token}`,
+                        Accept: "application/json"
                     },
                 });
 
                 if (res.ok) {
                     const data = await res.json();
-                    localStorage.setItem('token', data.access_token);
+
+                    // ✅ Simpan ke storage yang sama dengan token lama
+                    if (localStorage.getItem('token')) {
+                        localStorage.setItem('token', data.access_token);
+                    } else {
+                        sessionStorage.setItem('token', data.access_token);
+                    }
+
                     toast.success('Token berhasil diperbarui 🔄');
                 } else {
                     localStorage.removeItem('token');
+                    sessionStorage.removeItem('token');
                     toast.error('Sesi habis, silakan login ulang.');
                     router.push('/login');
                 }
@@ -46,16 +56,18 @@ export default function DashboardLayout({ children }) {
                 console.error('Error refresh token:', error);
                 toast.error('Gagal memperbarui token.');
                 localStorage.removeItem('token');
+                sessionStorage.removeItem('token');
                 router.push('/login');
             }
         };
 
-        // Cek token saat halaman dibuka
+        // ✅ Cek token saat halaman dibuka
         const checkAuth = async () => {
             try {
                 const res = await fetch('http://127.0.0.1:8000/api/auth/me', {
                     headers: {
                         Authorization: `Bearer ${token}`,
+                        Accept: "application/json"
                     },
                 });
 
@@ -78,6 +90,7 @@ export default function DashboardLayout({ children }) {
 
         return () => clearInterval(interval);
     }, [router]);
+
     return (
         <>
             {/* Layout khusus dashboard */}

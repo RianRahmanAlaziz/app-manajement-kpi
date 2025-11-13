@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from 'react'
-import axios from 'axios'
+import axiosInstance from '@/lib/axiosInstance';
 import Select from "react-select";
 
 function InputJabatan({ formData, setFormData, errors, setErrors }) {
@@ -22,13 +22,8 @@ function InputJabatan({ formData, setFormData, errors, setErrors }) {
     useEffect(() => {
         const fetchDepartement = async () => {
             try {
-                const token = localStorage.getItem("token")
-                const res = await axios.get("http://127.0.0.1:8000/api/departement", {
-                    headers: {
-                        Authorization: `Bearer ${token}`,
-                        Accept: "application/json",
-                    },
-                })
+                const res = await axiosInstance.get(`/departement`);
+
                 setDepartement(res.data.data.data)
             } catch (error) {
                 console.error("Gagal memuat Departement:", error)
@@ -59,6 +54,7 @@ function InputJabatan({ formData, setFormData, errors, setErrors }) {
                     className="form-control"
                     placeholder="Name"
                     required
+                    autoFocus
                 />
                 {errors?.name && (
                     <small className="text-danger">{errors.name[0]}</small>
@@ -77,6 +73,7 @@ function InputJabatan({ formData, setFormData, errors, setErrors }) {
                     isSearchable={false}
                     isLoading={loading}     // ⬅️ Aktifkan spinner bawaan react-select
                     isDisabled={loading}
+                    autoFocus
                     className="form-control"
                     classNamePrefix="react-select"
                 />
