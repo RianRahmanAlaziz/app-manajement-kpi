@@ -40,10 +40,8 @@ function InputCategory({ formData, setFormData, errors, setErrors }) {
                     onChange={handleChange}
                     className="form-control"
                     required
-                >
-                    {formData.description || ''}
-                </textarea>
-
+                    value={formData.description || ''}
+                />
                 {errors?.description && (
                     <small className="text-danger">{errors.description[0]}</small>
                 )}

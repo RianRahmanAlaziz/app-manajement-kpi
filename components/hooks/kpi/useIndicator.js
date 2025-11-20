@@ -3,14 +3,14 @@ import { useState, useEffect } from 'react';
 import axiosInstance from '@/lib/axiosInstance';
 import { toast } from 'react-toastify';
 
-export default function useCategory() {
+export default function useIndicator() {
     const [isOpen, setIsOpen] = useState(false);
     const [isOpenDelete, setIsOpenDelete] = useState(false);
-    const [category, setCategory] = useState([]);
+    const [indicator, setIndicator] = useState([]);
     const [loading, setLoading] = useState(true);
     const [searchTerm, setSearchTerm] = useState('');
     const [errors, setErrors] = useState({});
-    const [formData, setFormData] = useState({ name: '', description: '' });
+    const [formData, setFormData] = useState({ kpicategory_id: '', name: '', description: '', unit: '' });
     const [pagination, setPagination] = useState({
         current_page: 1,
         last_page: 1,
@@ -21,12 +21,11 @@ export default function useCategory() {
     const [modalData, setModalData] = useState({ title: '', mode: 'add', editId: null });
     const [modalDataDelete, setModalDataDelete] = useState({ title: '', id: null });
 
-    // 🔹 Ambil data Category
-    const fetchCategory = async (page = 1, search = '') => {
+    const fetchIndicator = async (page = 1, search = '') => {
         try {
-            const res = await axiosInstance.get(`/kpi-category?page=${page}&search=${search}`);
+            const res = await axiosInstance.get(`/kpi-indicator?page=${page}&search=${search}`);
             const paginated = res.data.data;
-            setCategory(paginated.data);
+            setIndicator(paginated.data);
             setPagination({
                 current_page: paginated.current_page,
                 last_page: paginated.last_page,
@@ -34,94 +33,92 @@ export default function useCategory() {
                 total: paginated.total,
             });
         } catch (error) {
-            console.error('Gagal mengambil data Category:', error);
-            toast.error('Gagal mengambil data Category 😞');
+            console.error('Gagal mengambil data Indicator:', error);
+            toast.error('Gagal mengambil data Indocator');
         } finally {
             setLoading(false);
         }
     };
 
+
     useEffect(() => {
         if (searchTerm.trim() !== '') setLoading(true);
         const timeout = setTimeout(() => {
-            fetchCategory(1, searchTerm);
+            fetchIndicator(1, searchTerm);
         }, 500);
         return () => clearTimeout(timeout);
     }, [searchTerm]);
 
-    // 🔹 Pagination
     const handlePageChange = (page) => {
         if (page < 1 || page > pagination.last_page) return;
         setLoading(true);
-        fetchCategory(page, searchTerm);
+        fetchIndicator(page, searchTerm);
     };
 
-    // 🔹 Simpan (Tambah/Edit)
-    const handleSaveCategory = async () => {
+    const handleSaveIndicator = async () => {
         const { mode, editId } = modalData;
         try {
-            const url = mode === 'edit' ? `/kpi-category/${editId}` : '/kpi-category';
+            const url = mode === 'edit' ? `/kpi-indicator/${editId}` : '/kpi-indicator';
             const method = mode === 'edit' ? 'put' : 'post';
 
             await axiosInstance({ method, url, data: formData });
-
-            await fetchCategory();
+            await fetchIndicator();
             setIsOpen(false);
-            setFormData({ name: '', description: '' });
+            setFormData({ kpicategory_id: '', name: '', description: '', unit: '' });
             setErrors({});
 
             toast.success(
                 mode === 'edit'
-                    ? 'Category berhasil diperbarui ✅'
-                    : 'Category berhasil ditambahkan ✅'
+                    ? 'Indicator berhasil diperbarui ✅'
+                    : 'Indicator berhasil ditambahkan ✅'
             );
         } catch (error) {
             console.error('❌ Error response:', error.response?.data);
             if (error.response?.status === 422) {
                 setErrors(error.response.data.errors || {});
             } else {
-                toast.error('Gagal menyimpan data Category ⚠️');
+                toast.error('Gagal menyimpan data Indicator ⚠️');
             }
         }
-    };
+    }
 
     // 🔹 Modal Add
-    const openAddCategoryModal = () => {
-        setFormData({ name: '', description: '' });
+    const openAddIndicatorModal = () => {
+        setFormData({ kpicategory_id: '', name: '', description: '', unit: '' });
         setErrors({});
-        setModalData({ title: 'Add New Category', mode: 'add', editId: null });
+        setModalData({ title: 'Add New Indicator', mode: 'add', editId: null });
         setIsOpen(true);
     };
 
     // 🔹 Modal Edit
-    const openEditCategoryModal = (category) => {
+    const openEditIndicatorModal = (indicator) => {
         setFormData({
-            name: category.name || '',
-            description: category.description || '',
+            kpicategory_id: indicator?.KpiCategories?.id || '',
+            name: indicator.name || '',
+            description: indicator.description || '',
+            unit: indicator.unit || '',
         });
         setErrors({});
-        setModalData({ title: 'Edit Category', mode: 'edit', editId: category.id });
+        setModalData({ title: 'Edit Indicator', mode: 'edit', editId: indicator.id });
         setIsOpen(true);
     };
 
-    // 🔹 Modal Delete
-    const openModalDelete = (category) => {
-        setModalDataDelete({ title: `Hapus category "${category.name}"?`, id: category.id });
+    const openModalDelete = (indicator) => {
+        setModalDataDelete({ title: `Hapus Indicator "${indicator.name}"?`, id: indicator.id });
         setIsOpenDelete(true);
     };
 
-    // 🔹 Hapus Data
-    const handleDeleteCategory = async () => {
+    const handleDeleteIndicator = async () => {
         try {
-            await axiosInstance.delete(`/kpi-category/${modalDataDelete.id}`);
-            await fetchCategory();
+            await axiosInstance.delete(`/kpi-indicator/${modalDataDelete.id}`);
+            await fetchIndicator();
             setIsOpenDelete(false);
-            toast.success('Category berhasil dihapus 🗑️');
+            toast.success('Indicator berhasil dihapus 🗑️');
         } catch (error) {
             setIsOpenDelete(false);
-            console.error('Gagal menghapus Category:', error.response?.data);
+            console.error('Gagal menghapus Indicator:', error.response?.data);
             toast.error(
-                error.response?.data?.message || 'Terjadi kesalahan saat menghapus Category'
+                error.response?.data?.message || 'Terjadi kesalahan saat menghapus Indicator'
             );
         }
     };
@@ -129,7 +126,7 @@ export default function useCategory() {
     return {
         isOpen,
         isOpenDelete,
-        category,
+        indicator,
         loading,
         searchTerm,
         setSearchTerm,
@@ -143,10 +140,10 @@ export default function useCategory() {
         setIsOpen,
         setIsOpenDelete,
         handlePageChange,
-        handleSaveCategory,
-        openAddCategoryModal,
-        openEditCategoryModal,
+        handleSaveIndicator,
+        openAddIndicatorModal,
+        openEditIndicatorModal,
         openModalDelete,
-        handleDeleteCategory,
+        handleDeleteIndicator,
     };
 }

@@ -11,10 +11,10 @@ import {
     ChevronsLeft,
     ChevronsRight,
 } from 'lucide-react';
-import Modal from '../../../../components/common/Modal';
-import Modaldelete from '../../../../components/common/Modaldelete';
-import InputCategory from '../../../../components/pages/kpi/InputCategory';
-import useCategory from '../../../../components/hooks/kpi/useCategory';
+import Modal from '@/components/common/Modal';
+import Modaldelete from '@/components/common/Modaldelete';
+import InputCategory from '@/components/pages/kpi/InputCategory';
+import useCategory from '@/components/hooks/kpi/useCategory';
 
 function CategoryPage() {
 
@@ -131,7 +131,7 @@ function CategoryPage() {
                                     ))
                             ) : (
                                 <tr>
-                                    <td colSpan="3" className="text-center py-4">Tidak ada Data</td>
+                                    <td colSpan="4" className="text-center py-4">Tidak ada Data</td>
                                 </tr>
                             )}
                         </tbody>

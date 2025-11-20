@@ -2,10 +2,10 @@
 import { useEffect } from 'react'
 import { motion } from "framer-motion";
 import { CheckSquare, Trash2, ChevronLeft, ChevronsLeft, ChevronRight, ChevronsRight, UserPlus, LoaderCircle } from 'lucide-react'
-import Modal from '../../../../components/common/Modal';
-import Modaldelete from '../../../../components/common/Modaldelete';
-import InputDepartement from '../../../../components/pages/master-data/InputDepartement';
-import useDepartement from '../../../../components/hooks/master-data/useDepartement';
+import Modal from '@/components/common/Modal';
+import Modaldelete from '@/components/common/Modaldelete';
+import InputDepartement from '@/components/pages/master-data/InputDepartement';
+import useDepartement from '@/components/hooks/master-data/useDepartement';
 
 function DepartementPage() {
     useEffect(() => {

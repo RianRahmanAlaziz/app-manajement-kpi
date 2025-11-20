@@ -76,6 +76,8 @@ function LoginPage() {
                                         value={email}
                                         onChange={(e) => setEmail(e.target.value)}
                                         required
+                                        autoFocus
+                                        autoComplete="username"
                                         className="intro-x login__input form-control py-3 px-4 block"
                                         placeholder="Email" />
                                     <input
@@ -84,6 +86,7 @@ function LoginPage() {
                                         value={password}
                                         onChange={(e) => setPassword(e.target.value)}
                                         required
+                                        autoComplete="current-password"
                                         className="intro-x login__input form-control py-3 px-4 block mt-4"
                                         placeholder="Password" />
                                 </div>

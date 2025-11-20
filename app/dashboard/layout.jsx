@@ -7,9 +7,9 @@ import 'react-toastify/dist/ReactToastify.css';
 import "@/style/css/app.css"
 import Script from "next/script";
 import Topbar from "@/components/layouts/Topbar";
-import Sidebar from "../../components/layouts/Sidebar";
-import Switcher from "../../components/layouts/Switcher";
-import Menumobile from "../../components/layouts/Menumobile";
+import Sidebar from "@/components/layouts/Sidebar";
+import Switcher from "@/components/layouts/Switcher";
+import Menumobile from "@/components/layouts/Menumobile";
 
 export default function DashboardLayout({ children }) {
 
@@ -86,7 +86,7 @@ export default function DashboardLayout({ children }) {
         // Auto refresh token setiap 55 menit (3300 detik)
         const interval = setInterval(() => {
             refreshToken();
-        }, 55 * 60 * 1000);
+        }, 50 * 60 * 1000);
 
         return () => clearInterval(interval);
     }, [router]);

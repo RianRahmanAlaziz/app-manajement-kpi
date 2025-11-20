@@ -1,11 +1,11 @@
 'use client';
 import { useEffect } from 'react'
 import { motion } from "framer-motion";
-import Modal from '../../../../components/common/Modal';
+import Modal from '@/components/common/Modal';
 import { CheckSquare, Trash2, ChevronLeft, ChevronsLeft, ChevronRight, ChevronsRight, UserPlus, LoaderCircle } from 'lucide-react'
-import Modaldelete from '../../../../components/common/Modaldelete';
-import InputPermissions from '../../../../components/pages/users/InputPermissions';
-import usePermisson from '../../../../components/hooks/users/usePermisson';
+import Modaldelete from '@/components/common/Modaldelete';
+import InputPermissions from '@/components/pages/users/InputPermissions';
+import usePermisson from '@/components/hooks/users/usePermisson';
 
 function PermissionManagement() {
     const {

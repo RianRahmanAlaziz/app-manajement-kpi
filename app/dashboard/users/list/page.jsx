@@ -3,12 +3,12 @@ import Image from 'next/image'
 import Tippy from '@tippyjs/react'; // ✅ dari React
 import { CheckSquare, Trash2, ChevronLeft, ChevronsLeft, ChevronRight, ChevronsRight, UserPlus, LoaderCircle } from 'lucide-react'
 import { useEffect } from 'react'
-import Modal from '../../../../components/common/Modal';
+import Modal from '@/components/common/Modal';
 import { motion } from "framer-motion";
-import Adduser from '../../../../components/pages/users/Adduser';
-import Modaldelete from '../../../../components/common/Modaldelete';
+import Adduser from '@/components/pages/users/Adduser';
+import Modaldelete from '@/components/common/Modaldelete';
 import 'react-toastify/dist/ReactToastify.css' // ✅ Import CSS
-import useUser from '../../../../components/hooks/users/useUser';
+import useUser from '@/components/hooks/users/useUser';
 
 function PageUsers() {
     const {
